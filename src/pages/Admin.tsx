@@ -186,7 +186,6 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-background font-sans">
-      <div style={{background:'red',color:'white',padding:'8px',textAlign:'center',fontSize:'12px'}}>ВЕРСИЯ 2 — {String(visits?.today ?? 'нет данных')}</div>
       {/* шапка */}
       <header className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
