@@ -22,8 +22,8 @@
     --muted: 38 22% 90%;
     --muted-foreground: 28 12% 42%;
 
-    --accent: 18 55% 42%;
-    --accent-foreground: 40 33% 96%;
+    --accent: 38 65% 48%;
+    --accent-foreground: 25 25% 10%;
 
     --destructive: 0 70% 45%;
     --destructive-foreground: 40 33% 96%;
@@ -146,5 +146,23 @@
   }
   .ink-underline:hover::after {
     transform: scaleX(1);
+  }
+
+  .hero-dark {
+    background-color: hsl(25 20% 8%);
+    color: hsl(38 30% 90%);
+  }
+
+  .hero-gold-line {
+    width: 3rem;
+    height: 1px;
+    background: hsl(38 65% 48%);
+    display: block;
+    margin-bottom: 2rem;
+  }
+
+  .hero-title-word {
+    display: block;
+    overflow: hidden;
   }
 }

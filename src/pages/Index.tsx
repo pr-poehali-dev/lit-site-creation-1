@@ -116,61 +116,111 @@ export default function Index() {
       </header>
 
       {/* HERO */}
-      <section id="home" className="relative pt-16 min-h-screen flex items-stretch overflow-hidden">
-        {/* Фоновое изображение или цвет */}
+      <section id="home" className="hero-dark relative pt-16 min-h-screen flex items-stretch overflow-hidden">
+
+        {/* Фоновая текстура */}
+        <div className="absolute inset-0 paper-grain opacity-60 pointer-events-none" />
+
+        {/* Пользовательский фон */}
         {siteContent.hero_bg && (
           <div className="absolute inset-0">
-            <img src={siteContent.hero_bg} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-background/70" />
+            <img src={siteContent.hero_bg} alt="" className="w-full h-full object-cover opacity-20" />
           </div>
         )}
 
+        {/* Тонкая золотая линия сверху */}
+        <div className="absolute top-16 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-600/40 to-transparent" />
+
         <div className="relative w-full flex flex-col md:flex-row min-h-screen">
+
           {/* Левая часть — текст */}
-          <div className="flex flex-col justify-center px-8 md:px-16 lg:px-24 py-32 md:py-24 w-full md:w-1/2 z-10">
-            <p className="animate-fade-in text-accent uppercase tracking-[0.3em] text-xs mb-6">
-              {siteContent.hero_label || 'Литературный дневник'}
-            </p>
-            <h1 className="animate-fade-up font-serif text-5xl sm:text-6xl lg:text-7xl leading-[0.95] mb-8">
-              {siteContent.hero_title || 'Слова, которым нужна тишина'}
+          <div className="flex flex-col justify-center px-8 md:px-16 lg:px-28 py-32 md:py-24 w-full md:w-[55%] z-10">
+
+            {/* Метка */}
+            <div className="flex items-center gap-4 mb-10 animate-fade-in">
+              <span className="hero-gold-line" style={{margin: 0}} />
+              <p className="text-amber-500/80 uppercase tracking-[0.35em] text-xs font-sans">
+                {siteContent.hero_label || 'Литературный дневник'}
+              </p>
+            </div>
+
+            {/* Заголовок */}
+            <h1 className="animate-fade-up font-serif text-5xl sm:text-6xl lg:text-[5.5rem] leading-[0.9] tracking-tight mb-10" style={{color: 'hsl(38 25% 88%)'}}>
+              {(siteContent.hero_title || 'Слова, которым\nнужна тишина').split('\n').map((line, i) => (
+                <span key={i} className="block">
+                  {i === 1 ? <><em className="not-italic" style={{color: 'hsl(38 65% 55%)'}}>{line}</em></> : line}
+                </span>
+              ))}
             </h1>
-            <p className="animate-fade-up text-lg text-muted-foreground leading-relaxed mb-10 max-w-md" style={{ animationDelay: '0.15s', opacity: 0 }}>
-              {siteContent.hero_subtitle || 'Здесь живут мои стихи, рассказы, фантазии и эссе.'}
+
+            {/* Разделитель */}
+            <div className="w-12 h-px bg-amber-600/50 mb-8 animate-fade-in" style={{animationDelay: '0.2s'}} />
+
+            {/* Подзаголовок */}
+            <p className="animate-fade-up font-sans text-base leading-relaxed mb-12 max-w-sm" style={{ animationDelay: '0.25s', opacity: 0, color: 'hsl(38 15% 62%)' }}>
+              {siteContent.hero_subtitle || 'Здесь живут мои стихи, рассказы, фантазии и эссе. Заходите без спешки — лучшее читается медленно.'}
             </p>
-            <div className="animate-fade-up flex flex-wrap gap-4" style={{ animationDelay: '0.3s', opacity: 0 }}>
-              <Button size="lg" onClick={() => scrollTo('works')} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm px-8">
+
+            {/* Кнопки */}
+            <div className="animate-fade-up flex flex-wrap gap-4" style={{ animationDelay: '0.4s', opacity: 0 }}>
+              <button
+                onClick={() => scrollTo('works')}
+                className="px-8 py-3 text-sm uppercase tracking-widest border transition-all duration-300"
+                style={{borderColor: 'hsl(38 65% 48%)', color: 'hsl(38 65% 55%)', background: 'transparent'}}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(38 65% 48%)'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(25 20% 8%)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(38 65% 55%)'; }}
+              >
                 Читать произведения
-              </Button>
-              <Button size="lg" variant="outline" onClick={() => scrollTo('about')} className="rounded-sm border-foreground/20 px-8">
+              </button>
+              <button
+                onClick={() => scrollTo('about')}
+                className="px-8 py-3 text-sm uppercase tracking-widest border transition-all duration-300"
+                style={{borderColor: 'hsl(38 15% 35%)', color: 'hsl(38 15% 62%)', background: 'transparent'}}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'hsl(38 15% 55%)'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(38 25% 88%)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'hsl(38 15% 35%)'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(38 15% 62%)'; }}
+              >
                 Об авторе
-              </Button>
+              </button>
             </div>
           </div>
 
           {/* Правая часть — фото автора */}
-          <div className="hidden md:block md:w-1/2 relative">
+          <div className="hidden md:block md:w-[45%] relative">
             {(siteContent.hero_photo || siteContent.author_photo) ? (
-              <img
-                src={siteContent.hero_photo || siteContent.author_photo}
-                alt="Автор"
-                className="absolute inset-0 w-full h-full object-cover object-top"
-              />
+              <>
+                <img
+                  src={siteContent.hero_photo || siteContent.author_photo}
+                  alt="Автор"
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-[hsl(25_20%_8%)] via-[hsl(25_20%_8%/0.1)] to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(25_20%_8%/0.6)] to-transparent" />
+              </>
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-primary/20 to-background flex items-center justify-center paper-grain">
-                <div className="text-center text-muted-foreground/30">
-                  <Icon name="User" size={80} />
-                  <p className="mt-4 text-sm">Загрузите фото в настройках</p>
+              <div className="absolute inset-0 flex flex-col items-center justify-center" style={{background: 'hsl(25 20% 5%)'}}>
+                {/* Декоративная рамка */}
+                <div className="w-64 h-80 border relative flex items-center justify-center" style={{borderColor: 'hsl(38 40% 25%)'}}>
+                  <div className="absolute -top-px -left-px w-8 h-8 border-t border-l" style={{borderColor: 'hsl(38 65% 48%)'}} />
+                  <div className="absolute -top-px -right-px w-8 h-8 border-t border-r" style={{borderColor: 'hsl(38 65% 48%)'}} />
+                  <div className="absolute -bottom-px -left-px w-8 h-8 border-b border-l" style={{borderColor: 'hsl(38 65% 48%)'}} />
+                  <div className="absolute -bottom-px -right-px w-8 h-8 border-b border-r" style={{borderColor: 'hsl(38 65% 48%)'}} />
+                  <div className="text-center" style={{color: 'hsl(38 20% 30%)'}}>
+                    <Icon name="User" size={48} />
+                    <p className="mt-4 text-xs uppercase tracking-widest">Ваше фото</p>
+                  </div>
                 </div>
               </div>
             )}
-            {/* Градиент для плавного перехода слева */}
-            <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
           </div>
         </div>
 
-        <button onClick={() => scrollTo('works')} className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground animate-fade-in z-10">
-          <Icon name="ChevronDown" size={28} />
+        {/* Стрелка вниз */}
+        <button onClick={() => scrollTo('works')} className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-fade-in z-10" style={{color: 'hsl(38 20% 40%)'}}>
+          <Icon name="ChevronDown" size={24} />
         </button>
+
+        {/* Тонкая золотая линия снизу */}
+        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-600/30 to-transparent" />
       </section>
 
       {/* WORKS */}
