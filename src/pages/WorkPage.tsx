@@ -101,7 +101,7 @@ export default function WorkPage() {
           </p>
         )}
 
-        <div className="font-serif text-lg leading-relaxed whitespace-pre-wrap">
+        <div className="font-serif text-xl sm:text-2xl leading-[1.9] whitespace-pre-wrap text-foreground">
           {work.body}
         </div>
 
