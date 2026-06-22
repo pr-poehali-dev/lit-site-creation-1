@@ -65,6 +65,7 @@ export default function Admin() {
     if (res.ok) {
       localStorage.setItem('admin_token', data.token);
       setToken(data.token);
+      fetchVisits(data.token);
     } else {
       setLoginError('Неверный пароль. Попробуйте ещё раз.');
     }
@@ -84,13 +85,16 @@ export default function Admin() {
     setLoading(false);
   };
 
+  const fetchVisits = (t: string) => {
+    fetch(VISITS_URL, { headers: { 'X-Auth-Token': t } })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data && 'today' in data) setVisits(data); });
+  };
+
   useEffect(() => {
     if (isLoggedIn) {
       fetchWorks();
-      const savedToken = localStorage.getItem('admin_token') || '';
-      fetch(VISITS_URL, { headers: { 'X-Auth-Token': savedToken } })
-        .then((r) => r.ok ? r.json() : null)
-        .then((data) => data && 'today' in data && setVisits(data));
+      fetchVisits(token);
     }
   }, [isLoggedIn]);
 
