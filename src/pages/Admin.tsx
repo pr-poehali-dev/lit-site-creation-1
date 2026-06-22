@@ -52,6 +52,13 @@ export default function Admin() {
   const [uploading, setUploading] = useState(false);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
+  const [tab, setTab] = useState<'works' | 'settings'>('works');
+  const [content, setContent] = useState<Record<string, string>>({});
+  const [contentSaving, setContentSaving] = useState(false);
+  const [contentSaved, setContentSaved] = useState(false);
+  const [books, setBooks] = useState<{title:string;year:string;type:string;status:string;cover:string;link:string}[]>([]);
+  const [announcements, setAnnouncements] = useState<{date:string;tag:string;text:string}[]>([]);
+  const [photoUploading, setPhotoUploading] = useState(false);
 
   const isLoggedIn = !!token;
 
@@ -93,10 +100,50 @@ export default function Admin() {
       .then((data) => { console.log('visits data', data); if (data && 'today' in data) setVisits(data); });
   };
 
+  const fetchContent = () => {
+    fetch(WORKS_URL + '?action=content')
+      .then((r) => r.json())
+      .then((data) => {
+        setContent(data);
+        try { setBooks(JSON.parse(data.books || '[]')); } catch { setBooks([]); }
+        try { setAnnouncements(JSON.parse(data.announcements || '[]')); } catch { setAnnouncements([]); }
+      });
+  };
+
+  const saveContent = async (extra?: Record<string, string>) => {
+    setContentSaving(true);
+    const payload = { ...content, ...extra, books: JSON.stringify(books), announcements: JSON.stringify(announcements) };
+    await fetch(WORKS_URL + '?action=content', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+      body: JSON.stringify(payload),
+    });
+    setContentSaving(false);
+    setContentSaved(true);
+    setTimeout(() => setContentSaved(false), 2000);
+  };
+
+  const uploadPhoto = async (file: File) => {
+    setPhotoUploading(true);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const res = await fetch(UPLOAD_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+        body: JSON.stringify({ file: reader.result }),
+      });
+      const data = await res.json();
+      if (data.url) setContent((c) => ({ ...c, author_photo: data.url }));
+      setPhotoUploading(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
   useEffect(() => {
     if (isLoggedIn) {
       fetchWorks();
       fetchVisits(token);
+      fetchContent();
     }
   }, [isLoggedIn]);
 
@@ -210,16 +257,165 @@ export default function Admin() {
           <span className="text-muted-foreground text-sm hidden sm:block">/ Панель автора </span>
         </div>
         <div className="flex items-center gap-3">
-          <Button onClick={openNew} size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-sm gap-2">
-            <Icon name="Plus" size={16} /> Новое произведение
-          </Button>
+          {tab === 'works' && (
+            <Button onClick={openNew} size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-sm gap-2">
+              <Icon name="Plus" size={16} /> Новое произведение
+            </Button>
+          )}
           <Button onClick={logout} size="sm" variant="ghost" className="rounded-sm text-muted-foreground gap-2">
             <Icon name="LogOut" size={16} /> Выйти
           </Button>
         </div>
       </header>
 
+      {/* ВКЛАДКИ */}
+      <div className="border-b border-border bg-card">
+        <div className="max-w-5xl mx-auto px-6 flex gap-1">
+          <button onClick={() => setTab('works')} className={`px-4 py-3 text-sm border-b-2 transition-colors ${tab === 'works' ? 'border-accent text-foreground font-medium' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+            Произведения
+          </button>
+          <button onClick={() => setTab('settings')} className={`px-4 py-3 text-sm border-b-2 transition-colors ${tab === 'settings' ? 'border-accent text-foreground font-medium' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+            Настройки сайта
+          </button>
+        </div>
+      </div>
+
       <div className="max-w-5xl mx-auto px-6 py-10">
+
+        {/* ===== НАСТРОЙКИ САЙТА ===== */}
+        {tab === 'settings' && (
+          <div className="space-y-10">
+
+            {/* Об авторе */}
+            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
+              <h2 className="font-serif text-2xl mb-2">Об авторе</h2>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Имя автора</label>
+                <Input value={content.author_name || ''} onChange={(e) => setContent((c) => ({ ...c, author_name: e.target.value }))} className="rounded-sm" placeholder="Имя Фамилия" />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Биография</label>
+                <Textarea rows={5} value={content.author_bio || ''} onChange={(e) => setContent((c) => ({ ...c, author_bio: e.target.value }))} className="rounded-sm" placeholder="Расскажите о себе…" />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Фото автора</label>
+                <div className="flex gap-3 items-center">
+                  <label className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded-sm border border-border bg-background text-sm hover:bg-muted/40 transition-colors ${photoUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <Icon name={photoUploading ? 'Loader' : 'ImageUp'} size={16} className={photoUploading ? 'animate-spin' : ''} />
+                    {photoUploading ? 'Загружаю…' : 'Выбрать фото'}
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])} />
+                  </label>
+                  {content.author_photo && <img src={content.author_photo} alt="Фото" className="h-12 w-12 rounded-full object-cover border border-border" />}
+                </div>
+              </div>
+            </section>
+
+            {/* Контакты */}
+            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
+              <h2 className="font-serif text-2xl mb-2">Контакты</h2>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1.5 block">Email</label>
+                  <Input value={content.contacts_email || ''} onChange={(e) => setContent((c) => ({ ...c, contacts_email: e.target.value }))} className="rounded-sm" placeholder="author@example.com" />
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1.5 block">Телефон</label>
+                  <Input value={content.contacts_phone || ''} onChange={(e) => setContent((c) => ({ ...c, contacts_phone: e.target.value }))} className="rounded-sm" placeholder="+7 900 000-00-00" />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Соцсети (ссылка или @username)</label>
+                <Input value={content.contacts_social || ''} onChange={(e) => setContent((c) => ({ ...c, contacts_social: e.target.value }))} className="rounded-sm" placeholder="https://t.me/username" />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Дополнительный текст</label>
+                <Textarea rows={3} value={content.contacts_text || ''} onChange={(e) => setContent((c) => ({ ...c, contacts_text: e.target.value }))} className="rounded-sm" placeholder="Любой дополнительный текст в разделе контактов…" />
+              </div>
+            </section>
+
+            {/* Объявления */}
+            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-serif text-2xl">Объявления</h2>
+                <Button size="sm" variant="outline" className="rounded-sm gap-2" onClick={() => setAnnouncements((a) => [...a, { date: '', tag: '', text: '' }])}>
+                  <Icon name="Plus" size={14} /> Добавить
+                </Button>
+              </div>
+              {announcements.map((a, i) => (
+                <div key={i} className="border border-border rounded-sm p-4 space-y-3 relative">
+                  <button onClick={() => setAnnouncements((arr) => arr.filter((_, j) => j !== i))} className="absolute top-3 right-3 text-muted-foreground hover:text-destructive">
+                    <Icon name="X" size={16} />
+                  </button>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Дата</label>
+                      <Input value={a.date} onChange={(e) => setAnnouncements((arr) => arr.map((x, j) => j === i ? { ...x, date: e.target.value } : x))} className="rounded-sm" placeholder="20 июня" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Тег</label>
+                      <Input value={a.tag} onChange={(e) => setAnnouncements((arr) => arr.map((x, j) => j === i ? { ...x, tag: e.target.value } : x))} className="rounded-sm" placeholder="Встреча / Новинка" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Текст</label>
+                    <Textarea rows={2} value={a.text} onChange={(e) => setAnnouncements((arr) => arr.map((x, j) => j === i ? { ...x, text: e.target.value } : x))} className="rounded-sm resize-none" />
+                  </div>
+                </div>
+              ))}
+              {announcements.length === 0 && <p className="text-muted-foreground text-sm">Нет объявлений. Нажмите «Добавить».</p>}
+            </section>
+
+            {/* Мои книги */}
+            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-serif text-2xl">Мои книги</h2>
+                <Button size="sm" variant="outline" className="rounded-sm gap-2" onClick={() => setBooks((b) => [...b, { title: '', year: '', type: '', status: 'В продаже', cover: '', link: '' }])}>
+                  <Icon name="Plus" size={14} /> Добавить книгу
+                </Button>
+              </div>
+              {books.map((b, i) => (
+                <div key={i} className="border border-border rounded-sm p-4 space-y-3 relative">
+                  <button onClick={() => setBooks((arr) => arr.filter((_, j) => j !== i))} className="absolute top-3 right-3 text-muted-foreground hover:text-destructive">
+                    <Icon name="X" size={16} />
+                  </button>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Название</label>
+                      <Input value={b.title} onChange={(e) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} className="rounded-sm" placeholder="Название книги" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Год</label>
+                      <Input value={b.year} onChange={(e) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, year: e.target.value } : x))} className="rounded-sm" placeholder="2024" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Тип</label>
+                      <Input value={b.type} onChange={(e) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, type: e.target.value } : x))} className="rounded-sm" placeholder="Сборник стихов" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Статус</label>
+                      <Input value={b.status} onChange={(e) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, status: e.target.value } : x))} className="rounded-sm" placeholder="В продаже / Готовится" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Ссылка на покупку (необязательно)</label>
+                    <Input value={b.link} onChange={(e) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, link: e.target.value } : x))} className="rounded-sm" placeholder="https://…" />
+                  </div>
+                </div>
+              ))}
+              {books.length === 0 && <p className="text-muted-foreground text-sm">Нет книг. Нажмите «Добавить книгу».</p>}
+            </section>
+
+            <div className="flex justify-end">
+              <Button onClick={() => saveContent()} disabled={contentSaving} className="bg-accent text-accent-foreground rounded-sm gap-2 px-8">
+                {contentSaving ? <><Icon name="Loader" size={16} className="animate-spin" /> Сохраняю…</> : contentSaved ? <><Icon name="Check" size={16} /> Сохранено!</> : <><Icon name="Save" size={16} /> Сохранить все настройки</>}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ===== ПРОИЗВЕДЕНИЯ ===== */}
+        {tab === 'works' && (
+        <div>
         {visits && (
           <div className="flex gap-6 mb-8 p-4 bg-card border border-border rounded-sm w-fit">
             <div className="text-center">
@@ -310,6 +506,8 @@ export default function Admin() {
               </tbody>
             </table>
           </div>
+        )}
+        </div>
         )}
       </div>
 

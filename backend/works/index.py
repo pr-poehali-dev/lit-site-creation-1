@@ -81,6 +81,39 @@ def handler(event: dict, context) -> dict:
         cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'url': cdn_url})}
 
+    # --- КОНТЕНТ: GET ?action=content ---
+    if action == 'content' and method == 'GET':
+        conn = get_conn()
+        cur = conn.cursor()
+        try:
+            cur.execute(f'SELECT key, value FROM {SCHEMA}.site_content')
+            rows = cur.fetchall()
+            result = {r[0]: r[1] for r in rows}
+        finally:
+            cur.close()
+            conn.close()
+        return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps(result, ensure_ascii=False)}
+
+    # --- КОНТЕНТ: POST ?action=content (только автор) ---
+    if action == 'content' and method == 'POST':
+        token = headers.get('x-auth-token', '')
+        if token != os.environ.get('ADMIN_PASSWORD', ''):
+            return {'statusCode': 401, 'headers': cors_headers(), 'body': json.dumps({'error': 'Нет доступа'})}
+        body = json.loads(event.get('body') or '{}')
+        conn = get_conn()
+        cur = conn.cursor()
+        try:
+            for key, value in body.items():
+                cur.execute(
+                    f'INSERT INTO {SCHEMA}.site_content (key, value) VALUES (%s, %s) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value',
+                    (key, value)
+                )
+            conn.commit()
+        finally:
+            cur.close()
+            conn.close()
+        return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'ok': True})}
+
     # --- ПОРЯДОК: POST ?action=reorder ---
     if action == 'reorder' and method == 'POST':
         token = headers.get('x-auth-token', '')

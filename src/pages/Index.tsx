@@ -41,17 +41,7 @@ const GENRES = [
 
 
 
-const BOOKS = [
-  { title: 'Тихие комнаты', year: '2024', type: 'Сборник стихов', status: 'В продаже' },
-  { title: 'Между строк', year: '2022', type: 'Рассказы и эссе', status: 'В продаже' },
-  { title: 'Город из бумаги', year: '2026', type: 'Роман', status: 'Готовится' },
-];
-
-const BOARD = [
-  { date: '20 июня', tag: 'Встреча', text: 'Творческий вечер в книжном клубе «Абзац» — читаю новые стихи и отвечаю на вопросы.' },
-  { date: '5 июня', tag: 'Новинка', text: 'Опубликовал цикл «Сентябрьский свет» — четыре новых стихотворения в разделе Произведения.' },
-  { date: '28 мая', tag: 'Конкурс', text: 'Открываю приём работ читателей на тему «Один тихий день». Лучшие опубликую на сайте.' },
-];
+const CONTENT_URL = WORKS_URL + '?action=content';
 
 const scrollTo = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -64,6 +54,9 @@ export default function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [works, setWorks] = useState<Work[]>([]);
   const [worksLoading, setWorksLoading] = useState(true);
+  const [siteContent, setSiteContent] = useState<Record<string, string>>({});
+  const [books, setBooks] = useState<{title:string;year:string;type:string;status:string;cover:string;link:string}[]>([]);
+  const [announcements, setAnnouncements] = useState<{date:string;tag:string;text:string}[]>([]);
 
   useEffect(() => {
     fetch(VISITS_URL, { method: 'POST' }).catch(() => {});
@@ -71,6 +64,13 @@ export default function Index() {
       .then((r) => r.json())
       .then((data: Work[]) => setWorks(data.filter((w) => w.published)))
       .finally(() => setWorksLoading(false));
+    fetch(CONTENT_URL)
+      .then((r) => r.json())
+      .then((data) => {
+        setSiteContent(data);
+        try { setBooks(JSON.parse(data.books || '[]')); } catch { setBooks([]); }
+        try { setAnnouncements(JSON.parse(data.announcements || '[]')); } catch { setAnnouncements([]); }
+      });
   }, []);
 
   const genreCount = (key: string) => {
@@ -220,7 +220,7 @@ export default function Index() {
           <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Издано</p>
           <h2 className="font-serif text-4xl sm:text-5xl mb-14">Мои книги</h2>
           <div className="grid md:grid-cols-3 gap-6">
-            {BOOKS.map((b, i) => (
+            {books.map((b, i) => (
               <div key={i} className="group relative bg-primary-foreground/5 border border-primary-foreground/15 rounded-sm p-8 hover:bg-primary-foreground/10 transition-colors">
                 <div className="flex items-start justify-between mb-8">
                   <Icon name="BookMarked" size={32} className="text-accent" />
@@ -228,8 +228,10 @@ export default function Index() {
                 </div>
                 <h3 className="font-serif text-3xl mb-2">{b.title}</h3>
                 <p className="text-primary-foreground/60 text-sm">{b.type} · {b.year}</p>
+                {b.link && <a href={b.link} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-xs text-accent underline">Купить →</a>}
               </div>
             ))}
+            {books.length === 0 && <p className="text-primary-foreground/50 col-span-3 text-center py-8">Книги пока не добавлены</p>}
           </div>
         </div>
       </section>
@@ -239,7 +241,7 @@ export default function Index() {
         <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Что нового</p>
         <h2 className="font-serif text-4xl sm:text-5xl mb-14">Доска объявлений</h2>
         <div className="grid md:grid-cols-3 gap-6">
-          {BOARD.map((b, i) => (
+          {announcements.map((b, i) => (
             <div key={i} className="paper-grain bg-card border border-border rounded-sm p-7 hover:-translate-y-1 transition-transform duration-300">
               <div className="flex items-center justify-between mb-5">
                 <span className="text-xs uppercase tracking-widest text-accent">{b.tag}</span>
@@ -256,7 +258,7 @@ export default function Index() {
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div className="relative">
             <div className="aspect-[4/5] rounded-sm overflow-hidden border border-border">
-              <img src={HERO_IMG} alt="Автор за работой" className="w-full h-full object-cover" />
+              <img src={siteContent.author_photo || HERO_IMG} alt="Автор за работой" className="w-full h-full object-cover" />
             </div>
             <div className="absolute -bottom-5 -right-5 bg-accent text-accent-foreground font-serif italic text-xl px-6 py-3 rounded-sm shadow-lg">
               с 2012 года
@@ -265,11 +267,8 @@ export default function Index() {
           <div>
             <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Об авторе</p>
             <h2 className="font-serif text-4xl sm:text-5xl mb-8">Я пишу, чтобы<br /><span className="italic">расслышать мир</span></h2>
-            <p className="drop-cap text-lg text-muted-foreground leading-relaxed mb-5">
-              Меня зовут так, как подписаны мои книги. Я живу словами с тех пор, как впервые понял, что строка может остановить время. Стихи, рассказы, эссе — для меня это разные способы прислушаться к одной и той же тишине.
-            </p>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-              На этом сайте я собираю всё, что пишу, — без редакторов и спешки. Здесь можно читать, оставлять отклики и иногда заглядывать за кулисы творчества.
+            <p className="drop-cap text-lg text-muted-foreground leading-relaxed mb-8 whitespace-pre-line">
+              {siteContent.author_bio || 'Расскажите о себе в разделе «Настройки сайта».'}
             </p>
             <div className="flex gap-8">
               {[['250+', 'произведений'], ['3', 'книги'], ['14 лет', 'в литературе']].map(([n, l]) => (
@@ -308,14 +307,26 @@ export default function Index() {
               Отклик о прочитанном, приглашение на встречу или просто доброе слово — я читаю каждое письмо.
             </p>
             <div className="space-y-5">
-              {[['Mail', 'author@chernila.ru'], ['Send', 't.me/chernila_i_tishina'], ['MapPin', 'Санкт-Петербург']].map(([icon, val]) => (
+              {[
+                ['Mail', siteContent.contacts_email],
+                ['Send', siteContent.contacts_social],
+                ['MessageSquare', siteContent.contacts_text],
+              ].filter(([, val]) => val).map(([icon, val]) => (
                 <div key={val} className="flex items-center gap-4">
                   <div className="w-11 h-11 rounded-sm bg-primary-foreground/10 flex items-center justify-center text-accent">
-                    <Icon name={icon} size={20} />
+                    <Icon name={icon as string} size={20} />
                   </div>
                   <span className="text-primary-foreground/90">{val}</span>
                 </div>
               ))}
+              {siteContent.contacts_phone && (
+                <div className="flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-sm bg-primary-foreground/10 flex items-center justify-center text-accent">
+                    <Icon name="Phone" size={20} />
+                  </div>
+                  <span className="text-primary-foreground/90">{siteContent.contacts_phone}</span>
+                </div>
+              )}
             </div>
           </div>
           <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
