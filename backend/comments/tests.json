@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "GET comments — missing work_id",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400
+    },
+    {
+      "name": "GET comments for work 1",
+      "method": "GET",
+      "path": "/?work_id=1",
+      "expectedStatus": 200
+    }
+  ]
+}
