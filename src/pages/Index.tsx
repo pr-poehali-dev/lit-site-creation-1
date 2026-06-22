@@ -332,17 +332,11 @@ export default function Index() {
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p className="font-serif italic text-lg">Чернила <span className="text-accent">&</span> тишина</p>
           <p>© {new Date().getFullYear()} · Все права на тексты принадлежат автору</p>
-          <a href="https://www.liveinternet.ru/click" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.liveinternet.ru/stat/52/" target="_blank" rel="noopener noreferrer">
             <img
-              src={`https://counter.yadro.ru/hit?t52;r${encodeURIComponent(document.referrer)};s${screen.width}*${screen.height}*${screen.colorDepth};u${encodeURIComponent(location.href)};${Math.random()}`}
+              src="https://counter.yadro.ru/hit;p52?t52"
               alt="LiveInternet"
-              style={{ display: 'none' }}
-            />
-            <img
-              src="https://counter.yadro.ru/logo?52"
-              alt="LiveInternet: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня"
-              title="LiveInternet: показано число просмотров за 24 часа, посетителей за 24 часа и за сегодня"
-              style={{ border: 'none' }}
+              style={{ border: 'none', width: 88, height: 31 }}
             />
           </a>
         </div>
