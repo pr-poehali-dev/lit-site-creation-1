@@ -4,6 +4,7 @@ import Icon from '@/components/ui/icon';
 
 const WORKS_URL = 'https://functions.poehali.dev/97e50fe2-d8c6-47a8-86fc-bbb58aeb0192';
 const COMMENTS_URL = 'https://functions.poehali.dev/20b2c93c-b071-4d5c-854e-a1e7805084bf';
+const VISITS_URL = 'https://functions.poehali.dev/d2d36958-59f3-4a5d-b437-6064bbb82359';
 
 interface Work {
   id: number;
@@ -12,6 +13,7 @@ interface Work {
   excerpt: string;
   body: string;
   audio_url: string;
+  image_url: string;
   read_time: string;
   created_at: string;
   published: boolean;
@@ -45,6 +47,7 @@ export default function WorkPage() {
   const isAdmin = !!adminToken;
 
   useEffect(() => {
+    fetch(VISITS_URL, { method: 'POST' }).catch(() => {});
     fetch(`${WORKS_URL}?id=${id}`)
       .then((r) => r.json())
       .then((data) => {
@@ -170,6 +173,12 @@ export default function WorkPage() {
             </>
           )}
         </div>
+
+        {work.image_url && (
+          <div className="mb-10">
+            <img src={work.image_url} alt={work.title} className="w-full max-h-96 object-cover rounded-sm border border-border" />
+          </div>
+        )}
 
         {work.excerpt && (
           <p className="text-muted-foreground italic text-lg leading-relaxed mb-10 border-l-2 border-accent pl-5">

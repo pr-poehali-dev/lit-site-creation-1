@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
 const WORKS_URL = 'https://functions.poehali.dev/97e50fe2-d8c6-47a8-86fc-bbb58aeb0192';
+const VISITS_URL = 'https://functions.poehali.dev/d2d36958-59f3-4a5d-b437-6064bbb82359';
 
 interface Work {
   id: number;
@@ -65,6 +66,7 @@ export default function Index() {
   const [worksLoading, setWorksLoading] = useState(true);
 
   useEffect(() => {
+    fetch(VISITS_URL, { method: 'POST' }).catch(() => {});
     fetch(WORKS_URL)
       .then((r) => r.json())
       .then((data: Work[]) => setWorks(data.filter((w) => w.published)))
@@ -202,7 +204,7 @@ export default function Index() {
               </div>
               <div>
                 <h3 className="font-serif text-2xl sm:text-3xl mb-3 group-hover:text-accent transition-colors">{w.title}</h3>
-                <p className="text-muted-foreground leading-relaxed max-w-2xl">{w.excerpt}</p>
+                <p className="text-muted-foreground leading-relaxed max-w-2xl text-sm">{w.excerpt}</p>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground text-sm whitespace-nowrap">
                 {w.read_time && <><Icon name="Clock" size={15} /> {w.read_time}</>}

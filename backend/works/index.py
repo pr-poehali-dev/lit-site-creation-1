@@ -34,18 +34,18 @@ def handler(event: dict, context) -> dict:
 
             if work_id:
                 cur.execute(
-                    f'SELECT id, genre, title, excerpt, body, audio_url, read_time, created_at, published FROM {SCHEMA}.works WHERE id = %s',
+                    f'SELECT id, genre, title, excerpt, body, audio_url, read_time, created_at, published, image_url FROM {SCHEMA}.works WHERE id = %s',
                     (work_id,)
                 )
                 row = cur.fetchone()
                 if not row:
                     return {'statusCode': 404, 'headers': cors_headers(), 'body': json.dumps({'error': 'Не найдено'})}
-                keys = ['id', 'genre', 'title', 'excerpt', 'body', 'audio_url', 'read_time', 'created_at', 'published']
+                keys = ['id', 'genre', 'title', 'excerpt', 'body', 'audio_url', 'read_time', 'created_at', 'published', 'image_url']
                 work = dict(zip(keys, row))
                 work['created_at'] = work['created_at'].isoformat()
                 return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps(work, ensure_ascii=False)}
 
-            query = f'SELECT id, genre, title, excerpt, body, audio_url, read_time, created_at, published FROM {SCHEMA}.works WHERE 1=1'
+            query = f'SELECT id, genre, title, excerpt, body, audio_url, read_time, created_at, published, image_url FROM {SCHEMA}.works WHERE 1=1'
             args = []
             if genre:
                 query += ' AND genre = %s'
@@ -57,7 +57,7 @@ def handler(event: dict, context) -> dict:
             query += ' ORDER BY created_at DESC'
             cur.execute(query, args)
             rows = cur.fetchall()
-            keys = ['id', 'genre', 'title', 'excerpt', 'body', 'audio_url', 'read_time', 'created_at', 'published']
+            keys = ['id', 'genre', 'title', 'excerpt', 'body', 'audio_url', 'read_time', 'created_at', 'published', 'image_url']
             works = []
             for row in rows:
                 w = dict(zip(keys, row))
@@ -73,10 +73,11 @@ def handler(event: dict, context) -> dict:
 
         if method == 'POST':
             cur.execute(
-                f'''INSERT INTO {SCHEMA}.works (genre, title, excerpt, body, audio_url, read_time, published)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id''',
+                f'''INSERT INTO {SCHEMA}.works (genre, title, excerpt, body, audio_url, read_time, published, image_url)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id''',
                 (body['genre'], body['title'], body.get('excerpt', ''), body.get('body', ''),
-                 body.get('audio_url', ''), body.get('read_time', ''), body.get('published', True))
+                 body.get('audio_url', ''), body.get('read_time', ''), body.get('published', True),
+                 body.get('image_url', ''))
             )
             new_id = cur.fetchone()[0]
             conn.commit()
@@ -86,9 +87,10 @@ def handler(event: dict, context) -> dict:
             work_id = params.get('id')
             cur.execute(
                 f'''UPDATE {SCHEMA}.works SET genre=%s, title=%s, excerpt=%s, body=%s,
-                    audio_url=%s, read_time=%s, published=%s WHERE id=%s''',
+                    audio_url=%s, read_time=%s, published=%s, image_url=%s WHERE id=%s''',
                 (body['genre'], body['title'], body.get('excerpt', ''), body.get('body', ''),
-                 body.get('audio_url', ''), body.get('read_time', ''), body.get('published', True), work_id)
+                 body.get('audio_url', ''), body.get('read_time', ''), body.get('published', True),
+                 body.get('image_url', ''), work_id)
             )
             conn.commit()
             return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'ok': True})}

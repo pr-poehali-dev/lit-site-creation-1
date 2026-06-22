@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 
 const WORKS_URL = 'https://functions.poehali.dev/97e50fe2-d8c6-47a8-86fc-bbb58aeb0192';
 const AUTH_URL = 'https://functions.poehali.dev/04d359cd-5265-40e8-8b22-c336a2d73de4';
+const VISITS_URL = 'https://functions.poehali.dev/d2d36958-59f3-4a5d-b437-6064bbb82359';
 
 const GENRES = ['Стихи', 'Рассказ', 'Фантазия', 'Эссе'];
 
@@ -16,6 +17,7 @@ interface Work {
   excerpt: string;
   body: string;
   audio_url: string;
+  image_url: string;
   read_time: string;
   created_at: string;
   published: boolean;
@@ -27,6 +29,7 @@ const emptyForm = (): Omit<Work, 'id' | 'created_at'> => ({
   excerpt: '',
   body: '',
   audio_url: '',
+  image_url: '',
   read_time: '',
   published: true,
 });
@@ -44,6 +47,7 @@ export default function Admin() {
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [visits, setVisits] = useState<{ today: number; total: number } | null>(null);
 
   const isLoggedIn = !!token;
 
@@ -79,7 +83,12 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    if (isLoggedIn) fetchWorks();
+    if (isLoggedIn) {
+      fetchWorks();
+      fetch(VISITS_URL, { headers: { 'X-Auth-Token': token } })
+        .then((r) => r.json())
+        .then((data) => setVisits(data));
+    }
   }, [isLoggedIn]);
 
   const openNew = () => {
@@ -95,6 +104,7 @@ export default function Admin() {
       excerpt: w.excerpt,
       body: w.body,
       audio_url: w.audio_url,
+      image_url: w.image_url || '',
       read_time: w.read_time,
       published: w.published,
     });
@@ -170,6 +180,19 @@ export default function Admin() {
       </header>
 
       <div className="max-w-5xl mx-auto px-6 py-10">
+        {visits && (
+          <div className="flex gap-6 mb-8 p-4 bg-card border border-border rounded-sm w-fit">
+            <div className="text-center">
+              <p className="text-2xl font-serif font-bold">{visits.today}</p>
+              <p className="text-xs text-muted-foreground">сегодня</p>
+            </div>
+            <div className="w-px bg-border" />
+            <div className="text-center">
+              <p className="text-2xl font-serif font-bold">{visits.total}</p>
+              <p className="text-xs text-muted-foreground">всего посетителей</p>
+            </div>
+          </div>
+        )}
         <div className="flex items-center justify-between mb-8">
           <h1 className="font-serif text-3xl">Мои произведения</h1>
           <span className="text-muted-foreground text-sm">{works.length} текстов</span>
@@ -297,6 +320,18 @@ export default function Admin() {
                   rows={10}
                   className="rounded-sm resize-y font-serif text-base leading-relaxed"
                 />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Ссылка на иллюстрацию (необязательно)</label>
+                <Input
+                  value={form.image_url}
+                  onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                  placeholder="https://… (адрес картинки, фото или рисунка)"
+                  className="rounded-sm"
+                />
+                {form.image_url && (
+                  <img src={form.image_url} alt="Предпросмотр" className="mt-2 max-h-40 rounded-sm object-cover border border-border" />
+                )}
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Ссылка на аудио (необязательно)</label>
