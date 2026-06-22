@@ -190,7 +190,7 @@ export default function Admin() {
       <header className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <a href="/" className="font-serif italic text-xl">Чернила <span className="text-accent">&</span> тишина</a>
-          <span className="text-muted-foreground text-sm hidden sm:block">/ Панель автора</span>
+          <span className="text-muted-foreground text-sm hidden sm:block">/ Панель автора </span>
         </div>
         <div className="flex items-center gap-3">
           <Button onClick={openNew} size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-sm gap-2">
