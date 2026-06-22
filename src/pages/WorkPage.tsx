@@ -4,7 +4,7 @@ import Icon from '@/components/ui/icon';
 
 const WORKS_URL = 'https://functions.poehali.dev/97e50fe2-d8c6-47a8-86fc-bbb58aeb0192';
 const COMMENTS_URL = 'https://functions.poehali.dev/20b2c93c-b071-4d5c-854e-a1e7805084bf';
-const VISITS_URL = 'https://functions.poehali.dev/d2d36958-59f3-4a5d-b437-6064bbb82359';
+const VISITS_URL = WORKS_URL + '?action=visit';
 
 interface Work {
   id: number;

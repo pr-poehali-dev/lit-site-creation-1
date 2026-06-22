@@ -6,8 +6,8 @@ import Icon from '@/components/ui/icon';
 
 const WORKS_URL = 'https://functions.poehali.dev/97e50fe2-d8c6-47a8-86fc-bbb58aeb0192';
 const AUTH_URL = 'https://functions.poehali.dev/04d359cd-5265-40e8-8b22-c336a2d73de4';
-const VISITS_URL = 'https://functions.poehali.dev/d2d36958-59f3-4a5d-b437-6064bbb82359';
-const UPLOAD_URL = 'https://functions.poehali.dev/dc5dd48e-67a6-4a08-b7e6-1fb4490fb067';
+const VISITS_URL = WORKS_URL + '?action=visits';
+const UPLOAD_URL = WORKS_URL + '?action=upload';
 
 const GENRES = ['Стихи', 'Рассказ', 'Фантазия', 'Эссе'];
 
