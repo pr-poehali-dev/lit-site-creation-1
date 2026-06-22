@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,6 +57,7 @@ const scrollTo = (id: string) => {
 };
 
 export default function Index() {
+  const navigate = useNavigate();
   const [activeGenre, setActiveGenre] = useState('Все');
   const [query, setQuery] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -191,7 +193,7 @@ export default function Index() {
             <p className="py-16 text-center text-muted-foreground font-serif text-2xl italic">Ничего не найдено…</p>
           )}
           {!worksLoading && filtered.map((w) => (
-            <article key={w.id} className="group grid md:grid-cols-[160px_1fr_auto] gap-4 md:gap-8 items-start py-8 border-b border-border hover:bg-card/60 transition-colors px-2 -mx-2 rounded-sm cursor-pointer">
+            <article key={w.id} onClick={() => navigate(`/work/${w.id}`)} className="group grid md:grid-cols-[160px_1fr_auto] gap-4 md:gap-8 items-start py-8 border-b border-border hover:bg-card/60 transition-colors px-2 -mx-2 rounded-sm cursor-pointer">
               <div className="text-sm text-muted-foreground">
                 <span className="text-accent uppercase tracking-widest text-xs">{w.genre}</span>
                 <p className="mt-1">
