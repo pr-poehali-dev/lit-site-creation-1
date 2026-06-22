@@ -87,8 +87,8 @@ export default function Admin() {
 
   const fetchVisits = (t: string) => {
     fetch(VISITS_URL, { headers: { 'X-Auth-Token': t } })
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data && 'today' in data) setVisits(data); });
+      .then((r) => { console.log('visits status', r.status); return r.ok ? r.json() : null; })
+      .then((data) => { console.log('visits data', data); if (data && 'today' in data) setVisits(data); });
   };
 
   useEffect(() => {
