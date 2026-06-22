@@ -1,8 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+
+const WORKS_URL = 'https://functions.poehali.dev/97e50fe2-d8c6-47a8-86fc-bbb58aeb0192';
+
+interface Work {
+  id: number;
+  genre: string;
+  title: string;
+  excerpt: string;
+  body: string;
+  audio_url: string;
+  read_time: string;
+  created_at: string;
+  published: boolean;
+}
 
 const HERO_IMG =
   'https://cdn.poehali.dev/projects/61cdedb7-3080-4183-a0bf-068105a36818/files/252b1522-46f8-42ce-9c4c-67c003f59c33.jpg';
@@ -23,12 +37,7 @@ const GENRES = [
   { key: 'Эссе', icon: 'PenLine', count: 12, desc: 'Размышления о слове, искусстве и человеке' },
 ];
 
-const WORKS = [
-  { genre: 'Стихи', title: 'Сентябрьский свет', date: '12 сентября 2025', excerpt: 'Сентябрь рассыпал золото по крышам, и тишина легла на провода. Я слышу то, чего давно не слышал — как остывает прежняя вода…', read: '2 мин' },
-  { genre: 'Рассказ', title: 'Человек, который собирал звуки', date: '3 августа 2025', excerpt: 'У него была коллекция: скрип старой двери, шёпот листвы, последний выдох уходящего поезда. Он хранил их в стеклянных банках на чердаке…', read: '8 мин' },
-  { genre: 'Эссе', title: 'О медленном чтении', date: '21 июля 2025', excerpt: 'Мы разучились читать медленно. А ведь слово, как вино, раскрывается только в паузе — между строкой и дыханием…', read: '5 мин' },
-  { genre: 'Фантазия', title: 'Библиотека несбывшихся', date: '9 июня 2025', excerpt: 'За последней полкой пыльного зала начинался коридор книг, которые никто и никогда не написал. Я открыл одну из них — и она открыла меня…', read: '11 мин' },
-];
+
 
 const BOOKS = [
   { title: 'Тихие комнаты', year: '2024', type: 'Сборник стихов', status: 'В продаже' },
@@ -50,13 +59,24 @@ export default function Index() {
   const [activeGenre, setActiveGenre] = useState('Все');
   const [query, setQuery] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [works, setWorks] = useState<Work[]>([]);
+  const [worksLoading, setWorksLoading] = useState(true);
 
-  const filtered = WORKS.filter((w) => {
-    const byGenre =
-      activeGenre === 'Все' ||
-      w.genre === activeGenre ||
-      (activeGenre === 'Рассказы' && w.genre === 'Рассказ') ||
-      (activeGenre === 'Фантазии' && w.genre === 'Фантазия');
+  useEffect(() => {
+    fetch(WORKS_URL)
+      .then((r) => r.json())
+      .then((data: Work[]) => setWorks(data.filter((w) => w.published)))
+      .finally(() => setWorksLoading(false));
+  }, []);
+
+  const genreCount = (key: string) => {
+    const map: Record<string, string> = { 'Рассказы': 'Рассказ', 'Фантазии': 'Фантазия' };
+    return works.filter((w) => w.genre === (map[key] || key)).length;
+  };
+
+  const filtered = works.filter((w) => {
+    const map: Record<string, string> = { 'Рассказы': 'Рассказ', 'Фантазии': 'Фантазия' };
+    const byGenre = activeGenre === 'Все' || w.genre === (map[activeGenre] || activeGenre);
     const byQuery = (w.title + w.excerpt).toLowerCase().includes(query.toLowerCase());
     return byGenre && byQuery;
   });
@@ -152,7 +172,7 @@ export default function Index() {
               <Icon name={g.icon} size={28} className={`mb-4 ${activeGenre === g.key ? 'text-primary-foreground' : 'text-accent'}`} />
               <div className="flex items-baseline justify-between mb-2">
                 <h3 className="font-serif text-2xl">{g.key}</h3>
-                <span className={`text-xs ${activeGenre === g.key ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{g.count}</span>
+                <span className={`text-xs ${activeGenre === g.key ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{genreCount(g.key)}</span>
               </div>
               <p className={`text-sm leading-relaxed ${activeGenre === g.key ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>{g.desc}</p>
             </button>
@@ -161,21 +181,29 @@ export default function Index() {
 
         {/* works list */}
         <div className="border-t border-border">
-          {filtered.length === 0 && (
+          {worksLoading && (
+            <div className="py-20 flex flex-col items-center gap-3 text-muted-foreground">
+              <Icon name="Loader" size={28} className="animate-spin" />
+              <p className="font-serif italic text-xl">Листаю страницы…</p>
+            </div>
+          )}
+          {!worksLoading && filtered.length === 0 && (
             <p className="py-16 text-center text-muted-foreground font-serif text-2xl italic">Ничего не найдено…</p>
           )}
-          {filtered.map((w, i) => (
-            <article key={i} className="group grid md:grid-cols-[160px_1fr_auto] gap-4 md:gap-8 items-start py-8 border-b border-border hover:bg-card/60 transition-colors px-2 -mx-2 rounded-sm cursor-pointer">
+          {!worksLoading && filtered.map((w) => (
+            <article key={w.id} className="group grid md:grid-cols-[160px_1fr_auto] gap-4 md:gap-8 items-start py-8 border-b border-border hover:bg-card/60 transition-colors px-2 -mx-2 rounded-sm cursor-pointer">
               <div className="text-sm text-muted-foreground">
                 <span className="text-accent uppercase tracking-widest text-xs">{w.genre}</span>
-                <p className="mt-1">{w.date}</p>
+                <p className="mt-1">
+                  {new Date(w.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
               </div>
               <div>
                 <h3 className="font-serif text-2xl sm:text-3xl mb-3 group-hover:text-accent transition-colors">{w.title}</h3>
                 <p className="text-muted-foreground leading-relaxed max-w-2xl">{w.excerpt}</p>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground text-sm whitespace-nowrap">
-                <Icon name="Clock" size={15} /> {w.read}
+                {w.read_time && <><Icon name="Clock" size={15} /> {w.read_time}</>}
               </div>
             </article>
           ))}
