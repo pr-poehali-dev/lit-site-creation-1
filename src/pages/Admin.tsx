@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 const WORKS_URL = 'https://functions.poehali.dev/97e50fe2-d8c6-47a8-86fc-bbb58aeb0192';
 const AUTH_URL = 'https://functions.poehali.dev/04d359cd-5265-40e8-8b22-c336a2d73de4';
 const VISITS_URL = 'https://functions.poehali.dev/d2d36958-59f3-4a5d-b437-6064bbb82359';
+const UPLOAD_URL = 'https://functions.poehali.dev/dc5dd48e-67a6-4a08-b7e6-1fb4490fb067';
 
 const GENRES = ['Стихи', 'Рассказ', 'Фантазия', 'Эссе'];
 
@@ -48,6 +49,7 @@ export default function Admin() {
   const [showForm, setShowForm] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [visits, setVisits] = useState<{ today: number; total: number } | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const isLoggedIn = !!token;
 
@@ -85,9 +87,10 @@ export default function Admin() {
   useEffect(() => {
     if (isLoggedIn) {
       fetchWorks();
-      fetch(VISITS_URL, { headers: { 'X-Auth-Token': token } })
-        .then((r) => r.json())
-        .then((data) => setVisits(data));
+      const savedToken = localStorage.getItem('admin_token') || '';
+      fetch(VISITS_URL, { headers: { 'X-Auth-Token': savedToken } })
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => data && 'today' in data && setVisits(data));
     }
   }, [isLoggedIn]);
 
@@ -110,6 +113,22 @@ export default function Admin() {
     });
     setEditId(w.id);
     setShowForm(true);
+  };
+
+  const uploadImage = async (file: File) => {
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const res = await fetch(UPLOAD_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+        body: JSON.stringify({ file: reader.result }),
+      });
+      const data = await res.json();
+      if (data.url) setForm((f) => ({ ...f, image_url: data.url }));
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   const save = async () => {
@@ -322,15 +341,26 @@ export default function Admin() {
                 />
               </div>
               <div>
-                <label className="text-sm text-muted-foreground mb-1.5 block">Ссылка на иллюстрацию (необязательно)</label>
-                <Input
-                  value={form.image_url}
-                  onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                  placeholder="https://… (адрес картинки, фото или рисунка)"
-                  className="rounded-sm"
-                />
+                <label className="text-sm text-muted-foreground mb-1.5 block">Иллюстрация (необязательно)</label>
+                <div className="flex gap-2 items-center">
+                  <label className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded-sm border border-border bg-card text-sm hover:bg-muted/40 transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <Icon name={uploading ? 'Loader' : 'ImageUp'} size={16} className={uploading ? 'animate-spin' : ''} />
+                    {uploading ? 'Загружаю…' : 'Выбрать файл с ПК'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && uploadImage(e.target.files[0])}
+                    />
+                  </label>
+                  {form.image_url && (
+                    <button onClick={() => setForm((f) => ({ ...f, image_url: '' }))} className="text-xs text-muted-foreground hover:text-destructive transition-colors">
+                      Удалить
+                    </button>
+                  )}
+                </div>
                 {form.image_url && (
-                  <img src={form.image_url} alt="Предпросмотр" className="mt-2 max-h-40 rounded-sm object-cover border border-border" />
+                  <img src={form.image_url} alt="Предпросмотр" className="mt-3 max-h-48 rounded-sm object-cover border border-border" />
                 )}
               </div>
               <div>
