@@ -81,6 +81,24 @@ def handler(event: dict, context) -> dict:
         cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'url': cdn_url})}
 
+    # --- ПОРЯДОК: POST ?action=reorder ---
+    if action == 'reorder' and method == 'POST':
+        token = headers.get('x-auth-token', '')
+        if token != os.environ.get('ADMIN_PASSWORD', ''):
+            return {'statusCode': 401, 'headers': cors_headers(), 'body': json.dumps({'error': 'Нет доступа'})}
+        body = json.loads(event.get('body') or '{}')
+        ids = body.get('ids', [])
+        conn = get_conn()
+        cur = conn.cursor()
+        try:
+            for i, wid in enumerate(ids):
+                cur.execute(f'UPDATE {SCHEMA}.works SET sort_order = %s WHERE id = %s', (i, wid))
+            conn.commit()
+        finally:
+            cur.close()
+            conn.close()
+        return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'ok': True})}
+
     # --- ПРОИЗВЕДЕНИЯ ---
     conn = get_conn()
     cur = conn.cursor()
@@ -112,7 +130,7 @@ def handler(event: dict, context) -> dict:
                 query += ' AND (title ILIKE %s OR excerpt ILIKE %s OR body ILIKE %s)'
                 like = f'%{search}%'
                 args.extend([like, like, like])
-            query += ' ORDER BY created_at DESC'
+            query += ' ORDER BY sort_order ASC, created_at DESC'
             cur.execute(query, args)
             rows = cur.fetchall()
             keys = ['id', 'genre', 'title', 'excerpt', 'body', 'audio_url', 'read_time', 'created_at', 'published', 'image_url']

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -50,6 +50,8 @@ export default function Admin() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [visits, setVisits] = useState<{ today: number; total: number } | null>(null);
   const [uploading, setUploading] = useState(false);
+  const dragItem = useRef<number | null>(null);
+  const dragOver = useRef<number | null>(null);
 
   const isLoggedIn = !!token;
 
@@ -97,6 +99,21 @@ export default function Admin() {
       fetchVisits(token);
     }
   }, [isLoggedIn]);
+
+  const handleDrop = () => {
+    if (dragItem.current === null || dragOver.current === null) return;
+    const reordered = [...works];
+    const [moved] = reordered.splice(dragItem.current, 1);
+    reordered.splice(dragOver.current, 0, moved);
+    dragItem.current = null;
+    dragOver.current = null;
+    setWorks(reordered);
+    fetch(WORKS_URL + '?action=reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+      body: JSON.stringify({ ids: reordered.map((w) => w.id) }),
+    });
+  };
 
   const openNew = () => {
     setForm(emptyForm());
@@ -251,10 +268,23 @@ export default function Admin() {
               </thead>
               <tbody>
                 {works.map((w, i) => (
-                  <tr key={w.id} className={`border-b border-border last:border-0 ${i % 2 === 0 ? '' : 'bg-muted/20'}`}>
+                  <tr
+                    key={w.id}
+                    draggable
+                    onDragStart={() => { dragItem.current = i; }}
+                    onDragEnter={() => { dragOver.current = i; }}
+                    onDragEnd={handleDrop}
+                    onDragOver={(e) => e.preventDefault()}
+                    className={`border-b border-border last:border-0 cursor-grab active:opacity-50 ${i % 2 === 0 ? '' : 'bg-muted/20'}`}
+                  >
                     <td className="px-5 py-4">
-                      <p className="font-serif text-base">{w.title}</p>
-                      <p className="text-muted-foreground text-xs mt-0.5 line-clamp-1">{w.excerpt}</p>
+                      <div className="flex items-center gap-2">
+                        <Icon name="GripVertical" size={14} className="text-muted-foreground/40 shrink-0" />
+                        <div>
+                          <p className="font-serif text-base">{w.title}</p>
+                          <p className="text-muted-foreground text-xs mt-0.5 line-clamp-1">{w.excerpt}</p>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-4 hidden sm:table-cell text-muted-foreground">{w.genre}</td>
                     <td className="px-4 py-4 hidden md:table-cell text-muted-foreground">
