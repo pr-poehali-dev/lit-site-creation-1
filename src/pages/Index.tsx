@@ -332,9 +332,9 @@ export default function Index() {
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p className="font-serif italic text-lg">Чернила <span className="text-accent">&</span> тишина</p>
           <p>© {new Date().getFullYear()} · Все права на тексты принадлежат автору</p>
-          <a href="https://www.liveinternet.ru/stat/52/" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.liveinternet.ru/stat/notstandard-project.ru/" target="_blank" rel="noopener noreferrer">
             <img
-              src="https://counter.yadro.ru/hit;p52?t52"
+              src="https://counter.yadro.ru/hit;notstandard-project.ru?t52"
               alt="LiveInternet"
               style={{ border: 'none', width: 88, height: 31 }}
             />
