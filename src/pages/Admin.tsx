@@ -286,6 +286,72 @@ export default function Admin() {
         {tab === 'settings' && (
           <div className="space-y-10">
 
+            {/* Главная страница */}
+            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
+              <h2 className="font-serif text-2xl mb-2">Главная страница</h2>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Подпись над заголовком (маленький текст)</label>
+                <Input value={content.hero_label || ''} onChange={(e) => setContent((c) => ({ ...c, hero_label: e.target.value }))} className="rounded-sm" placeholder="Литературный дневник" />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Главный заголовок</label>
+                <Textarea rows={2} value={content.hero_title || ''} onChange={(e) => setContent((c) => ({ ...c, hero_title: e.target.value }))} className="rounded-sm resize-none" placeholder="Слова, которым нужна тишина…" />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Подзаголовок</label>
+                <Textarea rows={2} value={content.hero_subtitle || ''} onChange={(e) => setContent((c) => ({ ...c, hero_subtitle: e.target.value }))} className="rounded-sm resize-none" placeholder="Здесь живут мои стихи…" />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Фото автора (правая половина экрана)</label>
+                <div className="flex gap-3 items-center">
+                  <label className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded-sm border border-border bg-background text-sm hover:bg-muted/40 transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <Icon name={uploading ? 'Loader' : 'ImageUp'} size={16} className={uploading ? 'animate-spin' : ''} />
+                    {uploading ? 'Загружаю…' : 'Выбрать фото'}
+                    <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                      if (!e.target.files?.[0]) return;
+                      setUploading(true);
+                      const reader = new FileReader();
+                      reader.onload = async () => {
+                        const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body: JSON.stringify({ file: reader.result }) });
+                        const data = await res.json();
+                        if (data.url) setContent((c) => ({ ...c, hero_photo: data.url }));
+                        setUploading(false);
+                      };
+                      reader.readAsDataURL(e.target.files[0]);
+                    }} />
+                  </label>
+                  {content.hero_photo && <img src={content.hero_photo} alt="Hero" className="h-16 w-12 rounded-sm object-cover border border-border" />}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Фоновое изображение (необязательно)</label>
+                <div className="flex gap-3 items-center">
+                  <label className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded-sm border border-border bg-background text-sm hover:bg-muted/40 transition-colors ${photoUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <Icon name={photoUploading ? 'Loader' : 'Image'} size={16} className={photoUploading ? 'animate-spin' : ''} />
+                    {photoUploading ? 'Загружаю…' : 'Выбрать фон'}
+                    <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                      if (!e.target.files?.[0]) return;
+                      setPhotoUploading(true);
+                      const reader = new FileReader();
+                      reader.onload = async () => {
+                        const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body: JSON.stringify({ file: reader.result }) });
+                        const data = await res.json();
+                        if (data.url) setContent((c) => ({ ...c, hero_bg: data.url }));
+                        setPhotoUploading(false);
+                      };
+                      reader.readAsDataURL(e.target.files[0]);
+                    }} />
+                  </label>
+                  {content.hero_bg && (
+                    <div className="flex items-center gap-2">
+                      <img src={content.hero_bg} alt="Фон" className="h-12 w-20 rounded-sm object-cover border border-border" />
+                      <button onClick={() => setContent((c) => ({ ...c, hero_bg: '' }))} className="text-xs text-muted-foreground hover:text-destructive">Удалить</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+
             {/* Об авторе */}
             <section className="bg-card border border-border rounded-sm p-6 space-y-4">
               <h2 className="font-serif text-2xl mb-2">Об авторе</h2>

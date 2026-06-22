@@ -116,19 +116,26 @@ export default function Index() {
       </header>
 
       {/* HERO */}
-      <section id="home" className="relative pt-16 min-h-screen flex items-center overflow-hidden paper-grain">
-        <div className="absolute inset-0">
-          <img src={HERO_IMG} alt="Письменный стол" className="w-full h-full object-cover opacity-25" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/30" />
-        </div>
-        <div className="relative max-w-6xl mx-auto px-6 py-24 w-full">
-          <div className="max-w-2xl">
-            <p className="animate-fade-in text-accent uppercase tracking-[0.3em] text-xs mb-6">Литературный дневник</p>
-            <h1 className="animate-fade-up font-serif text-5xl sm:text-7xl leading-[0.95] mb-8">
-              Слова, которым<br />нужна <span className="italic text-accent">тишина</span>,<br />чтобы прозвучать
+      <section id="home" className="relative pt-16 min-h-screen flex items-stretch overflow-hidden">
+        {/* Фоновое изображение или цвет */}
+        {siteContent.hero_bg && (
+          <div className="absolute inset-0">
+            <img src={siteContent.hero_bg} alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-background/70" />
+          </div>
+        )}
+
+        <div className="relative w-full flex flex-col md:flex-row min-h-screen">
+          {/* Левая часть — текст */}
+          <div className="flex flex-col justify-center px-8 md:px-16 lg:px-24 py-32 md:py-24 w-full md:w-1/2 z-10">
+            <p className="animate-fade-in text-accent uppercase tracking-[0.3em] text-xs mb-6">
+              {siteContent.hero_label || 'Литературный дневник'}
+            </p>
+            <h1 className="animate-fade-up font-serif text-5xl sm:text-6xl lg:text-7xl leading-[0.95] mb-8">
+              {siteContent.hero_title || 'Слова, которым нужна тишина'}
             </h1>
-            <p className="animate-fade-up text-lg text-muted-foreground leading-relaxed mb-10 max-w-lg" style={{ animationDelay: '0.15s', opacity: 0 }}>
-              Здесь живут мои стихи, рассказы, фантазии и эссе. Заходите без спешки — лучшее читается медленно.
+            <p className="animate-fade-up text-lg text-muted-foreground leading-relaxed mb-10 max-w-md" style={{ animationDelay: '0.15s', opacity: 0 }}>
+              {siteContent.hero_subtitle || 'Здесь живут мои стихи, рассказы, фантазии и эссе.'}
             </p>
             <div className="animate-fade-up flex flex-wrap gap-4" style={{ animationDelay: '0.3s', opacity: 0 }}>
               <Button size="lg" onClick={() => scrollTo('works')} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm px-8">
@@ -139,8 +146,29 @@ export default function Index() {
               </Button>
             </div>
           </div>
+
+          {/* Правая часть — фото автора */}
+          <div className="hidden md:block md:w-1/2 relative">
+            {(siteContent.hero_photo || siteContent.author_photo) ? (
+              <img
+                src={siteContent.hero_photo || siteContent.author_photo}
+                alt="Автор"
+                className="absolute inset-0 w-full h-full object-cover object-top"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-primary/20 to-background flex items-center justify-center paper-grain">
+                <div className="text-center text-muted-foreground/30">
+                  <Icon name="User" size={80} />
+                  <p className="mt-4 text-sm">Загрузите фото в настройках</p>
+                </div>
+              </div>
+            )}
+            {/* Градиент для плавного перехода слева */}
+            <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10" />
+          </div>
         </div>
-        <button onClick={() => scrollTo('works')} className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground animate-fade-in">
+
+        <button onClick={() => scrollTo('works')} className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground animate-fade-in z-10">
           <Icon name="ChevronDown" size={28} />
         </button>
       </section>
