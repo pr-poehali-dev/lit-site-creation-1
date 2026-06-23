@@ -130,6 +130,23 @@ export default function Index() {
         {/* Тонкая линия сверху */}
         <div className="absolute top-16 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
 
+        {/* Каллиграфическая надпись по центру */}
+        <div className="absolute top-16 inset-x-0 z-20 flex flex-col items-center pt-8 pointer-events-none select-none">
+          <div className="w-32 h-px mb-3 bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+          <p
+            className="text-6xl sm:text-7xl lg:text-8xl animate-fade-in"
+            style={{
+              fontFamily: "'Great Vibes', cursive",
+              color: 'hsl(38 25% 88%)',
+              textShadow: '0 2px 20px hsl(25 22% 8% / 0.8), 0 0 60px hsl(25 22% 8% / 0.6)',
+              lineHeight: 1.1,
+            }}
+          >
+            Алексей Ушаков
+          </p>
+          <div className="w-32 h-px mt-3 bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+        </div>
+
         <div className="relative w-full flex flex-col md:flex-row min-h-screen">
 
           {/* Левая часть — текст */}
