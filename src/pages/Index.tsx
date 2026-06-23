@@ -192,7 +192,7 @@ export default function Index() {
                   alt="Автор"
                   className="absolute inset-0 w-full h-full object-cover object-top"
                 />
-                <div className="absolute inset-0" style={{background: 'linear-gradient(to right, hsl(25 22% 16%), hsl(25 22% 16% / 0.1) 60%, transparent)'}} />
+                <div className="absolute inset-0" style={{background: 'linear-gradient(to right, hsl(25 22% 16%), hsl(25 22% 16% / 0.1) 50%, transparent)'}} />
                 <div className="absolute inset-0" style={{background: 'linear-gradient(to top, hsl(25 22% 16% / 0.6), transparent)'}} />
               </>
             ) : (
