@@ -131,20 +131,55 @@ export default function Index() {
         <div className="absolute top-16 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
 
         {/* Каллиграфическая надпись по центру */}
-        <div className="absolute top-16 inset-x-0 z-20 flex flex-col items-center pt-8 pointer-events-none select-none">
-          <div className="w-32 h-px mb-3 bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+        <div className="absolute top-16 inset-x-0 z-20 flex flex-col items-center pt-6 pointer-events-none select-none px-4">
+          {/* Вензель */}
+          <svg width="260" height="36" viewBox="0 0 260 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-1 opacity-80">
+            {/* Левая линия */}
+            <line x1="0" y1="18" x2="95" y2="18" stroke="hsl(38 25% 65%)" strokeWidth="0.8"/>
+            {/* Правая линия */}
+            <line x1="165" y1="18" x2="260" y2="18" stroke="hsl(38 25% 65%)" strokeWidth="0.8"/>
+            {/* Левый ромб-маркер */}
+            <polygon points="97,18 103,13 109,18 103,23" fill="none" stroke="hsl(38 55% 55%)" strokeWidth="0.9"/>
+            {/* Правый ромб-маркер */}
+            <polygon points="151,18 157,13 163,18 157,23" fill="none" stroke="hsl(38 55% 55%)" strokeWidth="0.9"/>
+            {/* Центральный орнамент — завиток */}
+            <g transform="translate(130,18)">
+              {/* Центральный ромб */}
+              <polygon points="0,-7 5,0 0,7 -5,0" fill="hsl(38 55% 55%)" opacity="0.9"/>
+              {/* Верхние усы */}
+              <path d="M-5,-3 C-14,-3 -18,-10 -12,-12 C-8,-13 -8,-9 -12,-9" stroke="hsl(38 45% 58%)" strokeWidth="0.9" fill="none"/>
+              <path d="M5,-3 C14,-3 18,-10 12,-12 C8,-13 8,-9 12,-9" stroke="hsl(38 45% 58%)" strokeWidth="0.9" fill="none"/>
+              {/* Нижние усы */}
+              <path d="M-5,3 C-14,3 -18,10 -12,12 C-8,13 -8,9 -12,9" stroke="hsl(38 45% 58%)" strokeWidth="0.9" fill="none"/>
+              <path d="M5,3 C14,3 18,10 12,12 C8,13 8,9 12,9" stroke="hsl(38 45% 58%)" strokeWidth="0.9" fill="none"/>
+              {/* Маленькие точки */}
+              <circle cx="-20" cy="0" r="1.2" fill="hsl(38 55% 55%)"/>
+              <circle cx="20" cy="0" r="1.2" fill="hsl(38 55% 55%)"/>
+            </g>
+          </svg>
+
+          {/* Имя */}
           <p
-            className="text-6xl sm:text-7xl lg:text-8xl animate-fade-in"
+            className="animate-fade-in"
             style={{
-              fontFamily: "'Great Vibes', cursive",
-              color: 'hsl(38 25% 88%)',
-              textShadow: '0 2px 20px hsl(25 22% 8% / 0.8), 0 0 60px hsl(25 22% 8% / 0.6)',
-              lineHeight: 1.1,
+              fontFamily: "'Corinthia', cursive",
+              fontSize: 'clamp(4rem, 10vw, 7.5rem)',
+              color: 'hsl(38 20% 84%)',
+              textShadow: '0 2px 24px hsl(25 22% 6% / 0.85), 0 0 80px hsl(25 22% 6% / 0.5)',
+              lineHeight: 1,
+              letterSpacing: '0.02em',
             }}
           >
             Алексей Ушаков
           </p>
-          <div className="w-32 h-px mt-3 bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+
+          {/* Подпись под именем */}
+          <p
+            className="mt-1 uppercase tracking-[0.45em] text-xs animate-fade-in"
+            style={{ color: 'hsl(38 20% 55%)', fontFamily: "'Golos Text', sans-serif", animationDelay: '0.2s' }}
+          >
+            Авторский сайт
+          </p>
         </div>
 
         <div className="relative w-full flex flex-col md:flex-row min-h-screen">
