@@ -59,6 +59,7 @@ export default function Admin() {
   const [books, setBooks] = useState<{title:string;year:string;type:string;status:string;cover:string;link:string}[]>([]);
   const [announcements, setAnnouncements] = useState<{date:string;tag:string;text:string}[]>([]);
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
 
   const isLoggedIn = !!token;
 
@@ -125,9 +126,11 @@ export default function Admin() {
 
   const compressImage = (file: File, maxWidth = 1600, quality = 0.85): Promise<string> =>
     new Promise((resolve) => {
+      setUploadProgress('Читаю файл…');
       const img = new Image();
       const url = URL.createObjectURL(file);
       img.onload = () => {
+        setUploadProgress('Сжимаю изображение…');
         const scale = Math.min(1, maxWidth / img.width);
         const canvas = document.createElement('canvas');
         canvas.width = img.width * scale;
@@ -142,6 +145,7 @@ export default function Admin() {
   const uploadPhoto = async (file: File) => {
     setPhotoUploading(true);
     const compressed = await compressImage(file);
+    setUploadProgress('Загружаю на сервер…');
     const res = await fetch(UPLOAD_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
@@ -150,6 +154,7 @@ export default function Admin() {
     const data = await res.json();
     if (data.url) setContent((c) => ({ ...c, author_photo: data.url }));
     setPhotoUploading(false);
+    setUploadProgress(null);
   };
 
   useEffect(() => {
@@ -199,6 +204,7 @@ export default function Admin() {
   const uploadImage = async (file: File) => {
     setUploading(true);
     const compressed = await compressImage(file);
+    setUploadProgress('Загружаю на сервер…');
     const res = await fetch(UPLOAD_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
@@ -207,6 +213,7 @@ export default function Admin() {
     const data = await res.json();
     if (data.url) setForm((f) => ({ ...f, image_url: data.url }));
     setUploading(false);
+    setUploadProgress(null);
   };
 
   const save = async () => {
@@ -321,10 +328,12 @@ export default function Admin() {
                       if (!e.target.files?.[0]) return;
                       setUploading(true);
                       const compressed = await compressImage(e.target.files[0]);
+                      setUploadProgress('Загружаю на сервер…');
                       const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body: JSON.stringify({ file: compressed }) });
                       const data = await res.json();
                       if (data.url) setContent((c) => ({ ...c, hero_photo: data.url }));
                       setUploading(false);
+                      setUploadProgress(null);
                     }} />
                   </label>
                   {content.hero_photo && <img src={content.hero_photo} alt="Hero" className="h-16 w-12 rounded-sm object-cover border border-border" />}
@@ -340,10 +349,12 @@ export default function Admin() {
                       if (!e.target.files?.[0]) return;
                       setPhotoUploading(true);
                       const compressed = await compressImage(e.target.files[0], 2400, 0.85);
+                      setUploadProgress('Загружаю на сервер…');
                       const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body: JSON.stringify({ file: compressed }) });
                       const data = await res.json();
                       if (data.url) setContent((c) => ({ ...c, hero_bg: data.url }));
                       setPhotoUploading(false);
+                      setUploadProgress(null);
                     }} />
                   </label>
                   {content.hero_bg && (
@@ -689,6 +700,22 @@ export default function Admin() {
               <Button onClick={save} disabled={saving || !form.title.trim()} className="bg-accent text-accent-foreground rounded-sm gap-2">
                 {saving ? <><Icon name="Loader" size={16} className="animate-spin" /> Сохраняю…</> : <><Icon name="Check" size={16} /> Сохранить</>}
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ИНДИКАТОР ЗАГРУЗКИ ФОТО */}
+      {uploadProgress && (
+        <div className="fixed bottom-6 right-6 z-50 bg-foreground text-background rounded-sm px-5 py-3 shadow-xl flex items-center gap-3 animate-fade-in">
+          <Icon name="Loader" size={16} className="animate-spin shrink-0" />
+          <div>
+            <p className="text-xs font-medium">{uploadProgress}</p>
+            <div className="mt-1.5 h-0.5 w-40 bg-background/20 rounded-full overflow-hidden">
+              <div className={`h-full bg-accent rounded-full transition-all duration-700 ${
+                uploadProgress.includes('Читаю') ? 'w-1/4' :
+                uploadProgress.includes('Сжимаю') ? 'w-2/3' : 'w-full animate-pulse'
+              }`} />
             </div>
           </div>
         </div>
