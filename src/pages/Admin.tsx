@@ -244,7 +244,7 @@ export default function Admin() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="w-full max-w-sm">
-          <p className="font-serif italic text-3xl text-center mb-2">Чернила <span className="text-accent">&</span> тишина</p>
+          <p className="font-serif italic text-3xl text-center mb-2">Пространство <span className="text-accent">&</span> слова</p>
           <p className="text-center text-muted-foreground text-sm mb-8">Вход для автора</p>
           <div className="bg-card border border-border rounded-sm p-8 space-y-4">
             <Input
@@ -270,7 +270,7 @@ export default function Admin() {
       {/* шапка */}
       <header className="border-b border-border bg-card px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <a href="/" className="font-serif italic text-xl">Чернила <span className="text-accent">&</span> тишина</a>
+          <a href="/" className="font-serif italic text-xl">Пространство <span className="text-accent">&</span> слова</a>
           <span className="text-muted-foreground text-sm hidden sm:block">/ Панель автора </span>
         </div>
         <div className="flex items-center gap-3">
