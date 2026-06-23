@@ -163,11 +163,12 @@ export default function Index() {
             className="animate-fade-in"
             style={{
               fontFamily: "'Forum', serif",
-              fontSize: 'clamp(2.8rem, 7vw, 5.5rem)',
+              fontSize: 'clamp(2rem, 5vw, 3.8rem)',
               color: 'hsl(38 20% 84%)',
               textShadow: '0 2px 24px hsl(25 22% 6% / 0.85), 0 0 80px hsl(25 22% 6% / 0.5)',
               lineHeight: 1.1,
               letterSpacing: '0.04em',
+              fontStyle: 'italic',
             }}
           >
             Алексей Ушаков
@@ -178,7 +179,7 @@ export default function Index() {
             className="mt-2 tracking-[0.45em] animate-fade-in"
             style={{
               fontFamily: "'Oranienbaum', serif",
-              fontSize: '0.8rem',
+              fontSize: '1rem',
               fontVariant: 'small-caps',
               color: 'hsl(38 20% 55%)',
               letterSpacing: '0.4em',
