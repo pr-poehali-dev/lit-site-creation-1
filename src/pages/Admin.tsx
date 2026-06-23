@@ -123,20 +123,33 @@ export default function Admin() {
     setTimeout(() => setContentSaved(false), 2000);
   };
 
+  const compressImage = (file: File, maxWidth = 1600, quality = 0.85): Promise<string> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const scale = Math.min(1, maxWidth / img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = url;
+    });
+
   const uploadPhoto = async (file: File) => {
     setPhotoUploading(true);
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const res = await fetch(UPLOAD_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
-        body: JSON.stringify({ file: reader.result }),
-      });
-      const data = await res.json();
-      if (data.url) setContent((c) => ({ ...c, author_photo: data.url }));
-      setPhotoUploading(false);
-    };
-    reader.readAsDataURL(file);
+    const compressed = await compressImage(file);
+    const res = await fetch(UPLOAD_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+      body: JSON.stringify({ file: compressed }),
+    });
+    const data = await res.json();
+    if (data.url) setContent((c) => ({ ...c, author_photo: data.url }));
+    setPhotoUploading(false);
   };
 
   useEffect(() => {
@@ -185,18 +198,15 @@ export default function Admin() {
 
   const uploadImage = async (file: File) => {
     setUploading(true);
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const res = await fetch(UPLOAD_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
-        body: JSON.stringify({ file: reader.result }),
-      });
-      const data = await res.json();
-      if (data.url) setForm((f) => ({ ...f, image_url: data.url }));
-      setUploading(false);
-    };
-    reader.readAsDataURL(file);
+    const compressed = await compressImage(file);
+    const res = await fetch(UPLOAD_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+      body: JSON.stringify({ file: compressed }),
+    });
+    const data = await res.json();
+    if (data.url) setForm((f) => ({ ...f, image_url: data.url }));
+    setUploading(false);
   };
 
   const save = async () => {
@@ -310,14 +320,11 @@ export default function Admin() {
                     <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                       if (!e.target.files?.[0]) return;
                       setUploading(true);
-                      const reader = new FileReader();
-                      reader.onload = async () => {
-                        const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body: JSON.stringify({ file: reader.result }) });
-                        const data = await res.json();
-                        if (data.url) setContent((c) => ({ ...c, hero_photo: data.url }));
-                        setUploading(false);
-                      };
-                      reader.readAsDataURL(e.target.files[0]);
+                      const compressed = await compressImage(e.target.files[0]);
+                      const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body: JSON.stringify({ file: compressed }) });
+                      const data = await res.json();
+                      if (data.url) setContent((c) => ({ ...c, hero_photo: data.url }));
+                      setUploading(false);
                     }} />
                   </label>
                   {content.hero_photo && <img src={content.hero_photo} alt="Hero" className="h-16 w-12 rounded-sm object-cover border border-border" />}
@@ -332,14 +339,11 @@ export default function Admin() {
                     <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                       if (!e.target.files?.[0]) return;
                       setPhotoUploading(true);
-                      const reader = new FileReader();
-                      reader.onload = async () => {
-                        const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body: JSON.stringify({ file: reader.result }) });
-                        const data = await res.json();
-                        if (data.url) setContent((c) => ({ ...c, hero_bg: data.url }));
-                        setPhotoUploading(false);
-                      };
-                      reader.readAsDataURL(e.target.files[0]);
+                      const compressed = await compressImage(e.target.files[0], 2400, 0.85);
+                      const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body: JSON.stringify({ file: compressed }) });
+                      const data = await res.json();
+                      if (data.url) setContent((c) => ({ ...c, hero_bg: data.url }));
+                      setPhotoUploading(false);
                     }} />
                   </label>
                   {content.hero_bg && (
