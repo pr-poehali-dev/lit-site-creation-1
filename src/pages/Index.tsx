@@ -59,7 +59,9 @@ export default function Index() {
   const [announcements, setAnnouncements] = useState<{date:string;tag:string;text:string}[]>([]);
 
   useEffect(() => {
-    fetch(VISITS_URL, { method: 'POST' }).catch(() => {});
+    if (!localStorage.getItem('admin_token')) {
+      fetch(VISITS_URL, { method: 'POST' }).catch(() => {});
+    }
     fetch(WORKS_URL)
       .then((r) => r.json())
       .then((data: Work[]) => setWorks(data.filter((w) => w.published)))
@@ -116,20 +118,17 @@ export default function Index() {
       </header>
 
       {/* HERO */}
-      <section id="home" className="hero-dark relative pt-16 min-h-screen flex items-stretch overflow-hidden">
-
-        {/* Фоновая текстура */}
-        <div className="absolute inset-0 paper-grain opacity-60 pointer-events-none" />
+      <section id="home" className="bg-primary text-primary-foreground relative pt-16 min-h-screen flex items-stretch overflow-hidden paper-grain">
 
         {/* Пользовательский фон */}
         {siteContent.hero_bg && (
           <div className="absolute inset-0">
-            <img src={siteContent.hero_bg} alt="" className="w-full h-full object-cover opacity-20" />
+            <img src={siteContent.hero_bg} alt="" className="w-full h-full object-cover opacity-15" />
           </div>
         )}
 
-        {/* Тонкая золотая линия сверху */}
-        <div className="absolute top-16 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-600/40 to-transparent" />
+        {/* Тонкая линия сверху */}
+        <div className="absolute top-16 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
 
         <div className="relative w-full flex flex-col md:flex-row min-h-screen">
 
@@ -138,26 +137,26 @@ export default function Index() {
 
             {/* Метка */}
             <div className="flex items-center gap-4 mb-10 animate-fade-in">
-              <span className="hero-gold-line" style={{margin: 0}} />
-              <p className="text-amber-500/80 uppercase tracking-[0.35em] text-xs font-sans">
+              <span className="w-10 h-px bg-accent block shrink-0" />
+              <p className="text-accent uppercase tracking-[0.35em] text-xs">
                 {siteContent.hero_label || 'Литературный дневник'}
               </p>
             </div>
 
             {/* Заголовок */}
-            <h1 className="animate-fade-up font-serif text-5xl sm:text-6xl lg:text-[5.5rem] leading-[0.9] tracking-tight mb-10" style={{color: 'hsl(38 25% 88%)'}}>
+            <h1 className="animate-fade-up font-serif text-5xl sm:text-6xl lg:text-[5.5rem] leading-[0.9] tracking-tight mb-10 text-primary-foreground">
               {(siteContent.hero_title || 'Слова, которым\nнужна тишина').split('\n').map((line, i) => (
                 <span key={i} className="block">
-                  {i === 1 ? <><em className="not-italic" style={{color: 'hsl(38 65% 55%)'}}>{line}</em></> : line}
+                  {i === 1 ? <em className="not-italic text-accent">{line}</em> : line}
                 </span>
               ))}
             </h1>
 
             {/* Разделитель */}
-            <div className="w-12 h-px bg-amber-600/50 mb-8 animate-fade-in" style={{animationDelay: '0.2s'}} />
+            <div className="w-12 h-px bg-accent/50 mb-8 animate-fade-in" style={{animationDelay: '0.2s'}} />
 
             {/* Подзаголовок */}
-            <p className="animate-fade-up font-sans text-base leading-relaxed mb-12 max-w-sm" style={{ animationDelay: '0.25s', opacity: 0, color: 'hsl(38 15% 62%)' }}>
+            <p className="animate-fade-up text-base leading-relaxed mb-12 max-w-sm text-primary-foreground/60" style={{ animationDelay: '0.25s', opacity: 0 }}>
               {siteContent.hero_subtitle || 'Здесь живут мои стихи, рассказы, фантазии и эссе. Заходите без спешки — лучшее читается медленно.'}
             </p>
 
@@ -165,19 +164,13 @@ export default function Index() {
             <div className="animate-fade-up flex flex-wrap gap-4" style={{ animationDelay: '0.4s', opacity: 0 }}>
               <button
                 onClick={() => scrollTo('works')}
-                className="px-8 py-3 text-sm uppercase tracking-widest border transition-all duration-300"
-                style={{borderColor: 'hsl(38 65% 48%)', color: 'hsl(38 65% 55%)', background: 'transparent'}}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(38 65% 48%)'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(25 20% 8%)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(38 65% 55%)'; }}
+                className="px-8 py-3 text-sm uppercase tracking-widest border border-accent text-accent hover:bg-accent hover:text-accent-foreground transition-all duration-300"
               >
                 Читать произведения
               </button>
               <button
                 onClick={() => scrollTo('about')}
-                className="px-8 py-3 text-sm uppercase tracking-widest border transition-all duration-300"
-                style={{borderColor: 'hsl(38 15% 35%)', color: 'hsl(38 15% 62%)', background: 'transparent'}}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'hsl(38 15% 55%)'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(38 25% 88%)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'hsl(38 15% 35%)'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(38 15% 62%)'; }}
+                className="px-8 py-3 text-sm uppercase tracking-widest border border-primary-foreground/20 text-primary-foreground/60 hover:border-primary-foreground/50 hover:text-primary-foreground transition-all duration-300"
               >
                 Об авторе
               </button>
@@ -193,18 +186,17 @@ export default function Index() {
                   alt="Автор"
                   className="absolute inset-0 w-full h-full object-cover object-top"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-[hsl(25_20%_8%)] via-[hsl(25_20%_8%/0.1)] to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(25_20%_8%/0.6)] to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/10 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent" />
               </>
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center" style={{background: 'hsl(25 20% 5%)'}}>
-                {/* Декоративная рамка */}
-                <div className="w-64 h-80 border relative flex items-center justify-center" style={{borderColor: 'hsl(38 40% 25%)'}}>
-                  <div className="absolute -top-px -left-px w-8 h-8 border-t border-l" style={{borderColor: 'hsl(38 65% 48%)'}} />
-                  <div className="absolute -top-px -right-px w-8 h-8 border-t border-r" style={{borderColor: 'hsl(38 65% 48%)'}} />
-                  <div className="absolute -bottom-px -left-px w-8 h-8 border-b border-l" style={{borderColor: 'hsl(38 65% 48%)'}} />
-                  <div className="absolute -bottom-px -right-px w-8 h-8 border-b border-r" style={{borderColor: 'hsl(38 65% 48%)'}} />
-                  <div className="text-center" style={{color: 'hsl(38 20% 30%)'}}>
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-primary-foreground/5">
+                <div className="w-64 h-80 border border-primary-foreground/15 relative flex items-center justify-center">
+                  <div className="absolute -top-px -left-px w-8 h-8 border-t border-l border-accent" />
+                  <div className="absolute -top-px -right-px w-8 h-8 border-t border-r border-accent" />
+                  <div className="absolute -bottom-px -left-px w-8 h-8 border-b border-l border-accent" />
+                  <div className="absolute -bottom-px -right-px w-8 h-8 border-b border-r border-accent" />
+                  <div className="text-center text-primary-foreground/20">
                     <Icon name="User" size={48} />
                     <p className="mt-4 text-xs uppercase tracking-widest">Ваше фото</p>
                   </div>
@@ -215,12 +207,12 @@ export default function Index() {
         </div>
 
         {/* Стрелка вниз */}
-        <button onClick={() => scrollTo('works')} className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-fade-in z-10" style={{color: 'hsl(38 20% 40%)'}}>
+        <button onClick={() => scrollTo('works')} className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-fade-in z-10 text-primary-foreground/30 hover:text-primary-foreground/60 transition-colors">
           <Icon name="ChevronDown" size={24} />
         </button>
 
-        {/* Тонкая золотая линия снизу */}
-        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-600/30 to-transparent" />
+        {/* Тонкая линия снизу */}
+        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
       </section>
 
       {/* WORKS */}
