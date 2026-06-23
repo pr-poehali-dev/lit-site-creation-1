@@ -118,7 +118,7 @@ export default function Index() {
       </header>
 
       {/* HERO */}
-      <section id="home" className="bg-primary text-primary-foreground relative pt-16 min-h-screen flex items-stretch overflow-hidden paper-grain">
+      <section id="home" className="hero-dark relative pt-16 min-h-screen flex items-stretch overflow-hidden paper-grain">
 
         {/* Пользовательский фон */}
         {siteContent.hero_bg && (
@@ -144,19 +144,19 @@ export default function Index() {
             </div>
 
             {/* Заголовок */}
-            <h1 className="animate-fade-up font-serif text-5xl sm:text-6xl lg:text-[5.5rem] leading-[0.9] tracking-tight mb-10 text-primary-foreground">
+            <h1 className="animate-fade-up font-serif text-5xl sm:text-6xl lg:text-[5.5rem] leading-[0.9] tracking-tight mb-10" style={{color: 'hsl(38 25% 88%)'}}>
               {(siteContent.hero_title || 'Слова, которым\nнужна тишина').split('\n').map((line, i) => (
                 <span key={i} className="block">
-                  {i === 1 ? <em className="not-italic text-accent">{line}</em> : line}
+                  {i === 1 ? <em className="not-italic" style={{color: 'hsl(38 65% 60%)'}}>{line}</em> : line}
                 </span>
               ))}
             </h1>
 
             {/* Разделитель */}
-            <div className="w-12 h-px bg-accent/50 mb-8 animate-fade-in" style={{animationDelay: '0.2s'}} />
+            <div className="w-12 h-px mb-8 animate-fade-in" style={{animationDelay: '0.2s', background: 'hsl(38 65% 48% / 0.5)'}} />
 
             {/* Подзаголовок */}
-            <p className="animate-fade-up text-base leading-relaxed mb-12 max-w-sm text-primary-foreground/60" style={{ animationDelay: '0.25s', opacity: 0 }}>
+            <p className="animate-fade-up text-base leading-relaxed mb-12 max-w-sm" style={{ animationDelay: '0.25s', opacity: 0, color: 'hsl(38 15% 65%)' }}>
               {siteContent.hero_subtitle || 'Здесь живут мои стихи, рассказы, фантазии и эссе. Заходите без спешки — лучшее читается медленно.'}
             </p>
 
@@ -164,13 +164,19 @@ export default function Index() {
             <div className="animate-fade-up flex flex-wrap gap-4" style={{ animationDelay: '0.4s', opacity: 0 }}>
               <button
                 onClick={() => scrollTo('works')}
-                className="px-8 py-3 text-sm uppercase tracking-widest border border-accent text-accent hover:bg-accent hover:text-accent-foreground transition-all duration-300"
+                className="px-8 py-3 text-sm uppercase tracking-widest border transition-all duration-300"
+                style={{borderColor: 'hsl(38 65% 48%)', color: 'hsl(38 65% 60%)'}}
+                onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = 'hsl(38 65% 48%)'; b.style.color = 'hsl(25 22% 12%)'; }}
+                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = 'transparent'; b.style.color = 'hsl(38 65% 60%)'; }}
               >
                 Читать произведения
               </button>
               <button
                 onClick={() => scrollTo('about')}
-                className="px-8 py-3 text-sm uppercase tracking-widest border border-primary-foreground/20 text-primary-foreground/60 hover:border-primary-foreground/50 hover:text-primary-foreground transition-all duration-300"
+                className="px-8 py-3 text-sm uppercase tracking-widest border transition-all duration-300"
+                style={{borderColor: 'hsl(38 10% 38%)', color: 'hsl(38 15% 65%)'}}
+                onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = 'hsl(38 15% 58%)'; b.style.color = 'hsl(38 25% 88%)'; }}
+                onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.borderColor = 'hsl(38 10% 38%)'; b.style.color = 'hsl(38 15% 65%)'; }}
               >
                 Об авторе
               </button>
@@ -186,17 +192,17 @@ export default function Index() {
                   alt="Автор"
                   className="absolute inset-0 w-full h-full object-cover object-top"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/10 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent" />
+                <div className="absolute inset-0" style={{background: 'linear-gradient(to right, hsl(25 22% 16%), hsl(25 22% 16% / 0.1) 60%, transparent)'}} />
+                <div className="absolute inset-0" style={{background: 'linear-gradient(to top, hsl(25 22% 16% / 0.6), transparent)'}} />
               </>
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-primary-foreground/5">
-                <div className="w-64 h-80 border border-primary-foreground/15 relative flex items-center justify-center">
-                  <div className="absolute -top-px -left-px w-8 h-8 border-t border-l border-accent" />
-                  <div className="absolute -top-px -right-px w-8 h-8 border-t border-r border-accent" />
-                  <div className="absolute -bottom-px -left-px w-8 h-8 border-b border-l border-accent" />
-                  <div className="absolute -bottom-px -right-px w-8 h-8 border-b border-r border-accent" />
-                  <div className="text-center text-primary-foreground/20">
+              <div className="absolute inset-0 flex flex-col items-center justify-center" style={{background: 'hsl(25 22% 12%)'}}>
+                <div className="w-64 h-80 border relative flex items-center justify-center" style={{borderColor: 'hsl(38 30% 22%)'}}>
+                  <div className="absolute -top-px -left-px w-8 h-8 border-t border-l" style={{borderColor: 'hsl(38 65% 48%)'}} />
+                  <div className="absolute -top-px -right-px w-8 h-8 border-t border-r" style={{borderColor: 'hsl(38 65% 48%)'}} />
+                  <div className="absolute -bottom-px -left-px w-8 h-8 border-b border-l" style={{borderColor: 'hsl(38 65% 48%)'}} />
+                  <div className="absolute -bottom-px -right-px w-8 h-8 border-b border-r" style={{borderColor: 'hsl(38 65% 48%)'}} />
+                  <div className="text-center" style={{color: 'hsl(38 20% 28%)'}}>
                     <Icon name="User" size={48} />
                     <p className="mt-4 text-xs uppercase tracking-widest">Ваше фото</p>
                   </div>
