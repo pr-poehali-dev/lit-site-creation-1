@@ -186,8 +186,17 @@ export default function WorkPage() {
           </p>
         )}
 
-        <div className="font-serif font-medium text-xl sm:text-2xl leading-[1.9] whitespace-pre-wrap text-foreground">
-          {work.body}
+        <div className="font-serif text-xl sm:text-2xl leading-[1.9] text-foreground">
+          {work.body.split('\n').map((line, i) => {
+            if (line.startsWith('**') && line.endsWith('**')) {
+              return <p key={i} className="font-bold mb-0">{line.slice(2, -2)}</p>;
+            }
+            if (line.startsWith('*') && line.endsWith('*') && line.length > 2) {
+              return <p key={i} className="italic mb-0">{line.slice(1, -1)}</p>;
+            }
+            if (line === '') return <br key={i} />;
+            return <p key={i} className="font-medium mb-0">{line}</p>;
+          })}
         </div>
 
         {work.audio_url && (

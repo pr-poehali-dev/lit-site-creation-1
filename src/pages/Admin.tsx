@@ -9,7 +9,7 @@ const AUTH_URL = 'https://functions.poehali.dev/04d359cd-5265-40e8-8b22-c336a2d7
 const VISITS_URL = WORKS_URL + '?action=visits';
 const UPLOAD_URL = WORKS_URL + '?action=upload';
 
-const GENRES = ['Стихи', 'Рассказ', 'Фантазия', 'Эссе'];
+const GENRES = ['Стихи', 'Рассказ', 'Фантазия', 'Эссе', 'Разное'];
 
 interface Work {
   id: number;
@@ -52,6 +52,7 @@ export default function Admin() {
   const [uploading, setUploading] = useState(false);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
   const [tab, setTab] = useState<'works' | 'settings'>('works');
   const [content, setContent] = useState<Record<string, string>>({});
   const [contentSaving, setContentSaving] = useState(false);
@@ -62,6 +63,28 @@ export default function Admin() {
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
 
   const isLoggedIn = !!token;
+
+  const applyFormat = (style: 'normal' | 'italic' | 'bold') => {
+    const ta = bodyRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const text = form.body;
+    const selected = text.slice(start, end);
+    const lineStart = text.lastIndexOf('\n', start - 1) + 1;
+    const lineEnd = text.indexOf('\n', end);
+    const fullEnd = lineEnd === -1 ? text.length : lineEnd;
+    const lines = text.slice(lineStart, fullEnd).split('\n');
+    const formatted = lines.map((line) => {
+      const stripped = line.replace(/^\*\*|\*\*$|^\*|\*$/g, '');
+      if (style === 'bold') return `**${stripped}**`;
+      if (style === 'italic') return `*${stripped}*`;
+      return stripped;
+    }).join('\n');
+    const newBody = text.slice(0, lineStart) + formatted + text.slice(fullEnd);
+    setForm({ ...form, body: newBody });
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(lineStart, lineStart + formatted.length); }, 0);
+  };
 
   const login = async () => {
     setLoginLoading(true);
@@ -645,13 +668,20 @@ export default function Admin() {
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Полный текст</label>
+                <div className="flex gap-1.5 mb-2">
+                  <button type="button" onClick={() => applyFormat('normal')} className="px-3 py-1 text-xs rounded-sm border border-border bg-card hover:bg-muted/40 transition-colors">Обычный</button>
+                  <button type="button" onClick={() => applyFormat('italic')} className="px-3 py-1 text-xs rounded-sm border border-border bg-card hover:bg-muted/40 transition-colors italic">Курсив</button>
+                  <button type="button" onClick={() => applyFormat('bold')} className="px-3 py-1 text-xs rounded-sm border border-border bg-card hover:bg-muted/40 transition-colors font-bold">Жирный</button>
+                </div>
                 <Textarea
+                  ref={bodyRef}
                   value={form.body}
                   onChange={(e) => setForm({ ...form, body: e.target.value })}
                   placeholder="Введите полный текст произведения…"
                   rows={10}
                   className="rounded-sm resize-y font-serif text-base leading-relaxed"
                 />
+                <p className="text-xs text-muted-foreground mt-1.5">Выделите абзац и нажмите кнопку форматирования</p>
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Иллюстрация (необязательно)</label>
