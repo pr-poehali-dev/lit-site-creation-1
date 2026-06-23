@@ -93,7 +93,7 @@ export default function Index() {
       <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-background/80 border-b border-border">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <button onClick={() => scrollTo('home')} className="font-serif text-2xl tracking-tight italic">
-            Чернила <span className="text-accent">&</span> тишина
+            Пространство <span className="text-accent">&</span> слова
           </button>
           <nav className="hidden md:flex items-center gap-7 text-sm">
             {NAV.map((n) => (
