@@ -162,12 +162,12 @@ export default function Index() {
           <p
             className="animate-fade-in"
             style={{
-              fontFamily: "'Corinthia', cursive",
-              fontSize: 'clamp(4rem, 10vw, 7.5rem)',
+              fontFamily: "'Forum', serif",
+              fontSize: 'clamp(2.8rem, 7vw, 5.5rem)',
               color: 'hsl(38 20% 84%)',
               textShadow: '0 2px 24px hsl(25 22% 6% / 0.85), 0 0 80px hsl(25 22% 6% / 0.5)',
-              lineHeight: 1,
-              letterSpacing: '0.02em',
+              lineHeight: 1.1,
+              letterSpacing: '0.04em',
             }}
           >
             Алексей Ушаков
@@ -175,8 +175,15 @@ export default function Index() {
 
           {/* Подпись под именем */}
           <p
-            className="mt-1 uppercase tracking-[0.45em] text-xs animate-fade-in"
-            style={{ color: 'hsl(38 20% 55%)', fontFamily: "'Golos Text', sans-serif", animationDelay: '0.2s' }}
+            className="mt-2 tracking-[0.45em] animate-fade-in"
+            style={{
+              fontFamily: "'Oranienbaum', serif",
+              fontSize: '0.8rem',
+              fontVariant: 'small-caps',
+              color: 'hsl(38 20% 55%)',
+              letterSpacing: '0.4em',
+              animationDelay: '0.2s',
+            }}
           >
             Авторский сайт
           </p>
