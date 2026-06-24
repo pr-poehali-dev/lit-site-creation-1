@@ -419,11 +419,11 @@ export default function Index() {
             {siteContent.gallery_desc || 'Любимые фото и видео сюжеты, вдохновляющие мою музу'}
           </p>
           {gallery.length > 0 ? (
-            <div className="columns-2 md:columns-3 gap-4 space-y-4">
+            <div className="flex flex-col gap-6">
               {gallery.map((item, i) => (
-                <div key={i} className="break-inside-avoid group relative rounded-sm overflow-hidden border border-border">
+                <div key={i} className="group relative rounded-sm overflow-hidden border border-primary-foreground/20">
                   {item.type === 'photo' ? (
-                    <img src={item.url} alt={item.caption} className="w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={item.url} alt={item.caption} className="w-full object-cover" />
                   ) : (
                     <div className="aspect-video">
                       <iframe
@@ -435,7 +435,7 @@ export default function Index() {
                     </div>
                   )}
                   {item.caption && (
-                    <div className="absolute bottom-0 inset-x-0 bg-foreground/60 text-background text-xs px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="bg-primary-foreground/10 text-primary-foreground/80 text-sm px-4 py-2.5 italic">
                       {item.caption}
                     </div>
                   )}
