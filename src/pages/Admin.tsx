@@ -583,66 +583,6 @@ export default function Admin() {
               {books.length === 0 && <p className="text-muted-foreground text-sm">Нет книг. Нажмите «Добавить книгу».</p>}
             </section>
 
-            {/* Статьи */}
-            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="font-serif text-2xl">Статьи</h2>
-                <Button size="sm" variant="outline" className="rounded-sm gap-2" onClick={() => setArticles((a) => [...a, { title: '', source: '', date: '', tag: '', url: '', image: '' }])}>
-                  <Icon name="Plus" size={14} /> Добавить статью
-                </Button>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground mb-1.5 block">Описание раздела</label>
-                <Textarea rows={2} value={content.articles_desc || ''} onChange={(e) => setContent((c) => ({ ...c, articles_desc: e.target.value }))} className="rounded-sm resize-none" placeholder="Интервью, критика, обзоры — всё, что написано обо мне или мной для прессы." />
-              </div>
-              {articles.map((a, i) => (
-                <div key={i} className="border border-border rounded-sm p-4 space-y-3 relative">
-                  <button onClick={() => setArticles((arr) => arr.filter((_, j) => j !== i))} className="absolute top-3 right-3 text-muted-foreground hover:text-destructive">
-                    <Icon name="X" size={16} />
-                  </button>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-muted-foreground mb-1 block">Заголовок</label>
-                      <Input value={a.title} onChange={(e) => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} className="rounded-sm" placeholder="Название статьи или интервью" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-muted-foreground mb-1 block">Тег (Интервью / Критика / Обзор)</label>
-                      <Input value={a.tag} onChange={(e) => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, tag: e.target.value } : x))} className="rounded-sm" placeholder="Интервью" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-muted-foreground mb-1 block">Источник (издание)</label>
-                      <Input value={a.source} onChange={(e) => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, source: e.target.value } : x))} className="rounded-sm" placeholder="Литературная газета" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-muted-foreground mb-1 block">Дата</label>
-                      <Input value={a.date} onChange={(e) => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, date: e.target.value } : x))} className="rounded-sm" placeholder="Март 2024" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Ссылка на материал (необязательно)</label>
-                    <Input value={a.url} onChange={(e) => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, url: e.target.value } : x))} className="rounded-sm" placeholder="https://…" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">Фото к статье (необязательно)</label>
-                    <div className="flex gap-3 items-center">
-                      <label className={`flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-sm border border-border bg-background text-xs hover:bg-muted/40 transition-colors ${articleImgUploading === i ? 'opacity-50 pointer-events-none' : ''}`}>
-                        <Icon name={articleImgUploading === i ? 'Loader' : 'ImageUp'} size={14} className={articleImgUploading === i ? 'animate-spin' : ''} />
-                        {articleImgUploading === i ? 'Загружаю…' : 'Выбрать фото'}
-                        <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadArticleImg(e.target.files[0], i)} />
-                      </label>
-                      {a.image && (
-                        <>
-                          <img src={a.image} alt="" className="h-10 w-14 object-cover rounded-sm border border-border" />
-                          <button onClick={() => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, image: '' } : x))} className="text-xs text-muted-foreground hover:text-destructive">Удалить</button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {articles.length === 0 && <p className="text-muted-foreground text-sm">Нет статей. Нажмите «Добавить статью».</p>}
-            </section>
-
             {/* Галерея */}
             <section className="bg-card border border-border rounded-sm p-6 space-y-4">
               <div className="flex items-center justify-between">
