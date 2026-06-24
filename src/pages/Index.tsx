@@ -28,7 +28,6 @@ const NAV = [
   { id: 'works', label: 'Произведения' },
   { id: 'books', label: 'Мои книги' },
   { id: 'board', label: 'Объявления' },
-  { id: 'articles', label: 'Статьи' },
   { id: 'gallery', label: 'Галерея' },
   { id: 'about', label: 'Об авторе' },
   { id: 'contacts', label: 'Контакты' },
@@ -39,6 +38,7 @@ const GENRES = [
   { key: 'Рассказы', icon: 'BookOpen', count: 23, desc: 'Короткие истории с неожиданным дыханием' },
   { key: 'Фантазии', icon: 'Sparkles', count: 17, desc: 'Миры на грани сна и реальности' },
   { key: 'Эссе', icon: 'PenLine', count: 12, desc: 'Размышления о слове, искусстве и человеке' },
+  { key: 'Статьи', icon: 'Newspaper', count: 0, desc: 'Интервью, критика, обзоры' },
   { key: 'Разное', icon: 'Shuffle', count: 0, desc: 'Афоризмы, экспериментальная поэзия и другие жанры' },
 ];
 
@@ -406,48 +406,14 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ARTICLES */}
-      <section id="articles" className="max-w-6xl mx-auto px-6 py-24">
-        <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Публикации</p>
-        <h2 className="font-serif text-4xl sm:text-5xl mb-4">Статьи</h2>
-        {siteContent.articles_desc && (
-          <p className="text-muted-foreground text-lg leading-relaxed mb-14 max-w-2xl">{siteContent.articles_desc}</p>
-        )}
-        {!siteContent.articles_desc && <div className="mb-14" />}
-        {articles.length > 0 ? (
-          <div className="grid md:grid-cols-2 gap-6">
-            {articles.map((a, i) => (
-              <a key={i} href={a.url || undefined} target="_blank" rel="noopener noreferrer" className={`group flex gap-5 paper-grain bg-card border border-border rounded-sm overflow-hidden hover:border-accent/50 transition-colors ${!a.url ? 'pointer-events-none' : ''}`}>
-                {a.image && (
-                  <div className="w-28 shrink-0 overflow-hidden">
-                    <img src={a.image} alt={a.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  </div>
-                )}
-                <div className="p-5 flex flex-col justify-between">
-                  <div>
-                    {a.tag && <span className="text-accent uppercase tracking-widest text-xs mb-2 block">{a.tag}</span>}
-                    <h3 className="font-serif text-xl mb-1 group-hover:text-accent transition-colors">{a.title}</h3>
-                    {a.source && <p className="text-sm text-muted-foreground">{a.source}</p>}
-                  </div>
-                  {a.date && <p className="text-xs text-muted-foreground mt-3">{a.date}</p>}
-                </div>
-              </a>
-            ))}
-          </div>
-        ) : (
-          <p className="text-muted-foreground italic">Статьи и интервью появятся здесь.</p>
-        )}
-      </section>
-
       {/* GALLERY */}
-      <section id="gallery" className="bg-secondary/40 py-24 paper-grain">
+      <section id="gallery" className="bg-primary text-primary-foreground py-24 paper-grain">
         <div className="max-w-6xl mx-auto px-6">
           <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Вдохновение</p>
-          <h2 className="font-serif text-4xl sm:text-5xl mb-4">Галерея</h2>
-          {siteContent.gallery_desc && (
-            <p className="text-muted-foreground text-lg leading-relaxed mb-14 max-w-2xl">{siteContent.gallery_desc}</p>
-          )}
-          {!siteContent.gallery_desc && <div className="mb-14" />}
+          <h2 className="font-serif text-4xl sm:text-5xl mb-3">Галерея</h2>
+          <p className="text-primary-foreground/60 text-lg leading-relaxed mb-14 max-w-2xl">
+            {siteContent.gallery_desc || 'Любимые фото и видео сюжеты, вдохновляющие мою музу'}
+          </p>
           {gallery.length > 0 ? (
             <div className="columns-2 md:columns-3 gap-4 space-y-4">
               {gallery.map((item, i) => (
@@ -473,7 +439,7 @@ export default function Index() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground italic">Фото и видео появятся здесь.</p>
+            <p className="text-primary-foreground/50 italic">Фото и видео появятся здесь.</p>
           )}
         </div>
       </section>

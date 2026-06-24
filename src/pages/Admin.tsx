@@ -9,7 +9,7 @@ const AUTH_URL = 'https://functions.poehali.dev/04d359cd-5265-40e8-8b22-c336a2d7
 const VISITS_URL = WORKS_URL + '?action=visits';
 const UPLOAD_URL = WORKS_URL + '?action=upload';
 
-const GENRES = ['Стихи', 'Рассказ', 'Фантазия', 'Эссе', 'Разное'];
+const GENRES = ['Стихи', 'Рассказ', 'Фантазия', 'Эссе', 'Статьи', 'Разное'];
 
 interface Work {
   id: number;
