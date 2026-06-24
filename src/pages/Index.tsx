@@ -412,12 +412,14 @@ export default function Index() {
 
       {/* GALLERY */}
       <section id="gallery" className="bg-primary text-primary-foreground py-24 paper-grain">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-6xl mx-auto px-6 mb-14">
           <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Вдохновение</p>
           <h2 className="font-serif text-4xl sm:text-5xl mb-3">Галерея</h2>
-          <p className="text-primary-foreground/60 text-lg leading-relaxed mb-14 max-w-2xl">
+          <p className="text-primary-foreground/60 text-lg leading-relaxed max-w-2xl">
             {siteContent.gallery_desc || 'Любимые фото и видео сюжеты, вдохновляющие мою музу'}
           </p>
+        </div>
+        <div className="px-6">
           {gallery.length > 0 ? (
             <div className="flex flex-col gap-6">
               {gallery.map((item, i) => (
@@ -443,7 +445,7 @@ export default function Index() {
               ))}
             </div>
           ) : (
-            <p className="text-primary-foreground/50 italic">Фото и видео появятся здесь.</p>
+            <p className="text-primary-foreground/50 italic px-6">Фото и видео появятся здесь.</p>
           )}
         </div>
       </section>
