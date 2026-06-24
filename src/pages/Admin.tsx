@@ -61,6 +61,7 @@ export default function Admin() {
   const [announcements, setAnnouncements] = useState<{date:string;tag:string;text:string}[]>([]);
   const [articles, setArticles] = useState<{title:string;source:string;date:string;tag:string;url:string;image:string}[]>([]);
   const [gallery, setGallery] = useState<{type:'photo'|'video';url:string;caption:string}[]>([]);
+  const dragIndexRef = useRef<number | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState<number | null>(null);
   const [articleImgUploading, setArticleImgUploading] = useState<number | null>(null);
@@ -608,7 +609,27 @@ export default function Admin() {
                 <Textarea rows={2} value={content.gallery_desc || ''} onChange={(e) => setContent((c) => ({ ...c, gallery_desc: e.target.value }))} className="rounded-sm resize-none" placeholder="Любимые фото и видео, вдохновляющие мою музу." />
               </div>
               {gallery.map((item, i) => (
-                <div key={i} className="border border-border rounded-sm p-3 flex gap-4 items-start relative">
+                <div
+                  key={i}
+                  draggable
+                  onDragStart={() => { dragIndexRef.current = i; }}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => {
+                    const from = dragIndexRef.current;
+                    if (from === null || from === i) return;
+                    setGallery((arr) => {
+                      const next = [...arr];
+                      const [moved] = next.splice(from, 1);
+                      next.splice(i, 0, moved);
+                      return next;
+                    });
+                    dragIndexRef.current = null;
+                  }}
+                  className="border border-border rounded-sm p-3 flex gap-4 items-start relative cursor-grab active:cursor-grabbing active:opacity-50 transition-opacity"
+                >
+                  <div className="shrink-0 flex items-center text-muted-foreground pt-1">
+                    <Icon name="GripVertical" size={16} />
+                  </div>
                   <button onClick={() => setGallery((arr) => arr.filter((_, j) => j !== i))} className="absolute top-2 right-2 text-muted-foreground hover:text-destructive">
                     <Icon name="X" size={14} />
                   </button>
