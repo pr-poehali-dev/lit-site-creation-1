@@ -421,7 +421,7 @@ export default function Index() {
         </div>
         <div className="px-6">
           {gallery.length > 0 ? (
-            <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-2 gap-6">
               {gallery.map((item, i) => (
                 <div key={i} className="group relative rounded-sm overflow-hidden border border-primary-foreground/20">
                   {item.type === 'photo' ? (
