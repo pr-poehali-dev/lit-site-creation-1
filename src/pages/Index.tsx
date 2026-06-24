@@ -409,7 +409,11 @@ export default function Index() {
       {/* ARTICLES */}
       <section id="articles" className="max-w-6xl mx-auto px-6 py-24">
         <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Публикации</p>
-        <h2 className="font-serif text-4xl sm:text-5xl mb-14">Статьи</h2>
+        <h2 className="font-serif text-4xl sm:text-5xl mb-4">Статьи</h2>
+        {siteContent.articles_desc && (
+          <p className="text-muted-foreground text-lg leading-relaxed mb-14 max-w-2xl">{siteContent.articles_desc}</p>
+        )}
+        {!siteContent.articles_desc && <div className="mb-14" />}
         {articles.length > 0 ? (
           <div className="grid md:grid-cols-2 gap-6">
             {articles.map((a, i) => (
@@ -439,7 +443,11 @@ export default function Index() {
       <section id="gallery" className="bg-secondary/40 py-24 paper-grain">
         <div className="max-w-6xl mx-auto px-6">
           <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Вдохновение</p>
-          <h2 className="font-serif text-4xl sm:text-5xl mb-14">Галерея</h2>
+          <h2 className="font-serif text-4xl sm:text-5xl mb-4">Галерея</h2>
+          {siteContent.gallery_desc && (
+            <p className="text-muted-foreground text-lg leading-relaxed mb-14 max-w-2xl">{siteContent.gallery_desc}</p>
+          )}
+          {!siteContent.gallery_desc && <div className="mb-14" />}
           {gallery.length > 0 ? (
             <div className="columns-2 md:columns-3 gap-4 space-y-4">
               {gallery.map((item, i) => (

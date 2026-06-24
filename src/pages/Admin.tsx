@@ -591,6 +591,10 @@ export default function Admin() {
                   <Icon name="Plus" size={14} /> Добавить статью
                 </Button>
               </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Описание раздела</label>
+                <Textarea rows={2} value={content.articles_desc || ''} onChange={(e) => setContent((c) => ({ ...c, articles_desc: e.target.value }))} className="rounded-sm resize-none" placeholder="Интервью, критика, обзоры — всё, что написано обо мне или мной для прессы." />
+              </div>
               {articles.map((a, i) => (
                 <div key={i} className="border border-border rounded-sm p-4 space-y-3 relative">
                   <button onClick={() => setArticles((arr) => arr.filter((_, j) => j !== i))} className="absolute top-3 right-3 text-muted-foreground hover:text-destructive">
@@ -644,6 +648,7 @@ export default function Admin() {
               <div className="flex items-center justify-between">
                 <h2 className="font-serif text-2xl">Галерея</h2>
                 <div className="flex gap-2">
+
                   <label className={`flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-sm border border-border bg-background text-xs hover:bg-muted/40 transition-colors ${galleryUploading ? 'opacity-50 pointer-events-none' : ''}`}>
                     <Icon name={galleryUploading ? 'Loader' : 'ImagePlus'} size={14} className={galleryUploading ? 'animate-spin' : ''} />
                     {galleryUploading ? 'Загружаю…' : 'Добавить фото'}
@@ -653,6 +658,10 @@ export default function Admin() {
                     <Icon name="Video" size={14} /> Добавить видео
                   </Button>
                 </div>
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Описание раздела</label>
+                <Textarea rows={2} value={content.gallery_desc || ''} onChange={(e) => setContent((c) => ({ ...c, gallery_desc: e.target.value }))} className="rounded-sm resize-none" placeholder="Любимые фото и видео, вдохновляющие мою музу." />
               </div>
               {gallery.map((item, i) => (
                 <div key={i} className="border border-border rounded-sm p-3 flex gap-4 items-start relative">
