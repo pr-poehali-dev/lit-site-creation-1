@@ -28,6 +28,8 @@ const NAV = [
   { id: 'works', label: 'Произведения' },
   { id: 'books', label: 'Мои книги' },
   { id: 'board', label: 'Объявления' },
+  { id: 'articles', label: 'Статьи' },
+  { id: 'gallery', label: 'Галерея' },
   { id: 'about', label: 'Об авторе' },
   { id: 'contacts', label: 'Контакты' },
 ];
@@ -58,6 +60,8 @@ export default function Index() {
   const [siteContent, setSiteContent] = useState<Record<string, string>>({});
   const [books, setBooks] = useState<{title:string;year:string;type:string;status:string;cover:string;link:string}[]>([]);
   const [announcements, setAnnouncements] = useState<{date:string;tag:string;text:string}[]>([]);
+  const [articles, setArticles] = useState<{title:string;source:string;date:string;tag:string;url:string;image:string}[]>([]);
+  const [gallery, setGallery] = useState<{type:'photo'|'video';url:string;caption:string}[]>([]);
 
   useEffect(() => {
     if (!localStorage.getItem('admin_token')) {
@@ -73,6 +77,8 @@ export default function Index() {
         setSiteContent(data);
         try { setBooks(JSON.parse(data.books || '[]')); } catch { setBooks([]); }
         try { setAnnouncements(JSON.parse(data.announcements || '[]')); } catch { setAnnouncements([]); }
+        try { setArticles(JSON.parse(data.articles || '[]')); } catch { setArticles([]); }
+        try { setGallery(JSON.parse(data.gallery || '[]')); } catch { setGallery([]); }
       });
   }, []);
 
@@ -358,14 +364,24 @@ export default function Index() {
           <h2 className="font-serif text-4xl sm:text-5xl mb-14">Мои книги</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {books.map((b, i) => (
-              <div key={i} className="group relative bg-primary-foreground/5 border border-primary-foreground/15 rounded-sm p-8 hover:bg-primary-foreground/10 transition-colors">
-                <div className="flex items-start justify-between mb-8">
-                  <Icon name="BookMarked" size={32} className="text-accent" />
-                  <span className={`text-xs px-3 py-1 rounded-full border ${b.status === 'В продаже' ? 'border-accent text-accent' : 'border-primary-foreground/30 text-primary-foreground/60'}`}>{b.status}</span>
+              <div key={i} className="group relative bg-primary-foreground/5 border border-primary-foreground/15 rounded-sm hover:bg-primary-foreground/10 transition-colors overflow-hidden">
+                {b.cover ? (
+                  <div className="aspect-[3/4] overflow-hidden">
+                    <img src={b.cover} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center aspect-[3/4] bg-primary-foreground/5">
+                    <Icon name="BookMarked" size={48} className="text-accent opacity-40" />
+                  </div>
+                )}
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-serif text-2xl">{b.title}</h3>
+                    <span className={`text-xs px-2 py-0.5 rounded-full border shrink-0 ml-2 mt-1 ${b.status === 'В продаже' ? 'border-accent text-accent' : 'border-primary-foreground/30 text-primary-foreground/60'}`}>{b.status}</span>
+                  </div>
+                  <p className="text-primary-foreground/60 text-sm">{b.type} · {b.year}</p>
+                  {b.link && <a href={b.link} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-xs text-accent underline">Купить →</a>}
                 </div>
-                <h3 className="font-serif text-3xl mb-2">{b.title}</h3>
-                <p className="text-primary-foreground/60 text-sm">{b.type} · {b.year}</p>
-                {b.link && <a href={b.link} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-xs text-accent underline">Купить →</a>}
               </div>
             ))}
             {books.length === 0 && <p className="text-primary-foreground/50 col-span-3 text-center py-8">Книги пока не добавлены</p>}
@@ -390,6 +406,70 @@ export default function Index() {
         </div>
       </section>
 
+      {/* ARTICLES */}
+      <section id="articles" className="max-w-6xl mx-auto px-6 py-24">
+        <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Публикации</p>
+        <h2 className="font-serif text-4xl sm:text-5xl mb-14">Статьи</h2>
+        {articles.length > 0 ? (
+          <div className="grid md:grid-cols-2 gap-6">
+            {articles.map((a, i) => (
+              <a key={i} href={a.url || undefined} target="_blank" rel="noopener noreferrer" className={`group flex gap-5 paper-grain bg-card border border-border rounded-sm overflow-hidden hover:border-accent/50 transition-colors ${!a.url ? 'pointer-events-none' : ''}`}>
+                {a.image && (
+                  <div className="w-28 shrink-0 overflow-hidden">
+                    <img src={a.image} alt={a.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  </div>
+                )}
+                <div className="p-5 flex flex-col justify-between">
+                  <div>
+                    {a.tag && <span className="text-accent uppercase tracking-widest text-xs mb-2 block">{a.tag}</span>}
+                    <h3 className="font-serif text-xl mb-1 group-hover:text-accent transition-colors">{a.title}</h3>
+                    {a.source && <p className="text-sm text-muted-foreground">{a.source}</p>}
+                  </div>
+                  {a.date && <p className="text-xs text-muted-foreground mt-3">{a.date}</p>}
+                </div>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p className="text-muted-foreground italic">Статьи и интервью появятся здесь.</p>
+        )}
+      </section>
+
+      {/* GALLERY */}
+      <section id="gallery" className="bg-secondary/40 py-24 paper-grain">
+        <div className="max-w-6xl mx-auto px-6">
+          <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Вдохновение</p>
+          <h2 className="font-serif text-4xl sm:text-5xl mb-14">Галерея</h2>
+          {gallery.length > 0 ? (
+            <div className="columns-2 md:columns-3 gap-4 space-y-4">
+              {gallery.map((item, i) => (
+                <div key={i} className="break-inside-avoid group relative rounded-sm overflow-hidden border border-border">
+                  {item.type === 'photo' ? (
+                    <img src={item.url} alt={item.caption} className="w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="aspect-video">
+                      <iframe
+                        src={item.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  )}
+                  {item.caption && (
+                    <div className="absolute bottom-0 inset-x-0 bg-foreground/60 text-background text-xs px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {item.caption}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground italic">Фото и видео появятся здесь.</p>
+          )}
+        </div>
+      </section>
+
       {/* ABOUT */}
       <section id="about" className="bg-secondary/40 py-24 paper-grain">
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
@@ -397,9 +477,11 @@ export default function Index() {
             <div className="aspect-[4/5] rounded-sm overflow-hidden border border-border">
               <img src={siteContent.author_photo || HERO_IMG} alt="Автор за работой" className="w-full h-full object-cover" />
             </div>
-            <div className="absolute -bottom-5 -right-5 bg-accent text-accent-foreground font-serif italic text-xl px-6 py-3 rounded-sm shadow-lg">
-              с 2012 года
-            </div>
+            {(siteContent.about_since) && (
+              <div className="absolute -bottom-5 -right-5 bg-accent text-accent-foreground font-serif italic text-xl px-6 py-3 rounded-sm shadow-lg">
+                {siteContent.about_since}
+              </div>
+            )}
           </div>
           <div>
             <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Об авторе</p>
@@ -407,8 +489,12 @@ export default function Index() {
             <p className="drop-cap text-lg text-muted-foreground leading-relaxed mb-8 whitespace-pre-line">
               {siteContent.author_bio || 'Расскажите о себе в разделе «Настройки сайта».'}
             </p>
-            <div className="flex gap-8">
-              {[['250+', 'произведений'], ['3', 'книги'], ['14 лет', 'в литературе']].map(([n, l]) => (
+            <div className="flex gap-8 flex-wrap">
+              {[
+                [siteContent.stat1_num || '250+', siteContent.stat1_label || 'произведений'],
+                [siteContent.stat2_num || '3', siteContent.stat2_label || 'книги'],
+                [siteContent.stat3_num || '14 лет', siteContent.stat3_label || 'в литературе'],
+              ].map(([n, l]) => (
                 <div key={l}>
                   <p className="font-serif text-3xl text-accent">{n}</p>
                   <p className="text-sm text-muted-foreground">{l}</p>

@@ -59,7 +59,12 @@ export default function Admin() {
   const [contentSaved, setContentSaved] = useState(false);
   const [books, setBooks] = useState<{title:string;year:string;type:string;status:string;cover:string;link:string}[]>([]);
   const [announcements, setAnnouncements] = useState<{date:string;tag:string;text:string}[]>([]);
+  const [articles, setArticles] = useState<{title:string;source:string;date:string;tag:string;url:string;image:string}[]>([]);
+  const [gallery, setGallery] = useState<{type:'photo'|'video';url:string;caption:string}[]>([]);
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [coverUploading, setCoverUploading] = useState<number | null>(null);
+  const [articleImgUploading, setArticleImgUploading] = useState<number | null>(null);
+  const [galleryUploading, setGalleryUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
 
   const isLoggedIn = !!token;
@@ -131,12 +136,14 @@ export default function Admin() {
         setContent(data);
         try { setBooks(JSON.parse(data.books || '[]')); } catch { setBooks([]); }
         try { setAnnouncements(JSON.parse(data.announcements || '[]')); } catch { setAnnouncements([]); }
+        try { setArticles(JSON.parse(data.articles || '[]')); } catch { setArticles([]); }
+        try { setGallery(JSON.parse(data.gallery || '[]')); } catch { setGallery([]); }
       });
   };
 
   const saveContent = async (extra?: Record<string, string>) => {
     setContentSaving(true);
-    const payload = { ...content, ...extra, books: JSON.stringify(books), announcements: JSON.stringify(announcements) };
+    const payload = { ...content, ...extra, books: JSON.stringify(books), announcements: JSON.stringify(announcements), articles: JSON.stringify(articles), gallery: JSON.stringify(gallery) };
     await fetch(WORKS_URL + '?action=content', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
@@ -178,6 +185,33 @@ export default function Admin() {
     if (data.url) setContent((c) => ({ ...c, author_photo: data.url }));
     setPhotoUploading(false);
     setUploadProgress(null);
+  };
+
+  const uploadCover = async (file: File, idx: number) => {
+    setCoverUploading(idx);
+    const compressed = await compressImage(file);
+    const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body: JSON.stringify({ file: compressed }) });
+    const data = await res.json();
+    if (data.url) setBooks((arr) => arr.map((x, j) => j === idx ? { ...x, cover: data.url } : x));
+    setCoverUploading(null);
+  };
+
+  const uploadArticleImg = async (file: File, idx: number) => {
+    setArticleImgUploading(idx);
+    const compressed = await compressImage(file);
+    const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body: JSON.stringify({ file: compressed }) });
+    const data = await res.json();
+    if (data.url) setArticles((arr) => arr.map((x, j) => j === idx ? { ...x, image: data.url } : x));
+    setArticleImgUploading(null);
+  };
+
+  const uploadGalleryPhoto = async (file: File) => {
+    setGalleryUploading(true);
+    const compressed = await compressImage(file);
+    const res = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token }, body: JSON.stringify({ file: compressed }) });
+    const data = await res.json();
+    if (data.url) setGallery((arr) => [...arr, { type: 'photo', url: data.url, caption: '' }]);
+    setGalleryUploading(false);
   };
 
   useEffect(() => {
@@ -412,6 +446,30 @@ export default function Admin() {
                   {content.author_photo && <img src={content.author_photo} alt="Фото" className="h-12 w-12 rounded-full object-cover border border-border" />}
                 </div>
               </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Подпись на фото (например: «с 2012 года»)</label>
+                <Input value={content.about_since || ''} onChange={(e) => setContent((c) => ({ ...c, about_since: e.target.value }))} className="rounded-sm" placeholder="с 2012 года" />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-2 block">Статистика</label>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Цифра 1</label>
+                    <Input value={content.stat1_num || ''} onChange={(e) => setContent((c) => ({ ...c, stat1_num: e.target.value }))} className="rounded-sm" placeholder="250+" />
+                    <Input value={content.stat1_label || ''} onChange={(e) => setContent((c) => ({ ...c, stat1_label: e.target.value }))} className="rounded-sm mt-1" placeholder="произведений" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Цифра 2</label>
+                    <Input value={content.stat2_num || ''} onChange={(e) => setContent((c) => ({ ...c, stat2_num: e.target.value }))} className="rounded-sm" placeholder="3" />
+                    <Input value={content.stat2_label || ''} onChange={(e) => setContent((c) => ({ ...c, stat2_label: e.target.value }))} className="rounded-sm mt-1" placeholder="книги" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Цифра 3</label>
+                    <Input value={content.stat3_num || ''} onChange={(e) => setContent((c) => ({ ...c, stat3_num: e.target.value }))} className="rounded-sm" placeholder="14 лет" />
+                    <Input value={content.stat3_label || ''} onChange={(e) => setContent((c) => ({ ...c, stat3_label: e.target.value }))} className="rounded-sm mt-1" placeholder="в литературе" />
+                  </div>
+                </div>
+              </div>
             </section>
 
             {/* Контакты */}
@@ -504,9 +562,126 @@ export default function Admin() {
                     <label className="text-xs text-muted-foreground mb-1 block">Ссылка на покупку (необязательно)</label>
                     <Input value={b.link} onChange={(e) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, link: e.target.value } : x))} className="rounded-sm" placeholder="https://…" />
                   </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Фото обложки</label>
+                    <div className="flex gap-3 items-center">
+                      <label className={`flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-sm border border-border bg-background text-xs hover:bg-muted/40 transition-colors ${coverUploading === i ? 'opacity-50 pointer-events-none' : ''}`}>
+                        <Icon name={coverUploading === i ? 'Loader' : 'ImageUp'} size={14} className={coverUploading === i ? 'animate-spin' : ''} />
+                        {coverUploading === i ? 'Загружаю…' : 'Выбрать обложку'}
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadCover(e.target.files[0], i)} />
+                      </label>
+                      {b.cover && (
+                        <>
+                          <img src={b.cover} alt="Обложка" className="h-12 w-9 object-cover rounded-sm border border-border" />
+                          <button onClick={() => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, cover: '' } : x))} className="text-xs text-muted-foreground hover:text-destructive">Удалить</button>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
               {books.length === 0 && <p className="text-muted-foreground text-sm">Нет книг. Нажмите «Добавить книгу».</p>}
+            </section>
+
+            {/* Статьи */}
+            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-serif text-2xl">Статьи</h2>
+                <Button size="sm" variant="outline" className="rounded-sm gap-2" onClick={() => setArticles((a) => [...a, { title: '', source: '', date: '', tag: '', url: '', image: '' }])}>
+                  <Icon name="Plus" size={14} /> Добавить статью
+                </Button>
+              </div>
+              {articles.map((a, i) => (
+                <div key={i} className="border border-border rounded-sm p-4 space-y-3 relative">
+                  <button onClick={() => setArticles((arr) => arr.filter((_, j) => j !== i))} className="absolute top-3 right-3 text-muted-foreground hover:text-destructive">
+                    <Icon name="X" size={16} />
+                  </button>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Заголовок</label>
+                      <Input value={a.title} onChange={(e) => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} className="rounded-sm" placeholder="Название статьи или интервью" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Тег (Интервью / Критика / Обзор)</label>
+                      <Input value={a.tag} onChange={(e) => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, tag: e.target.value } : x))} className="rounded-sm" placeholder="Интервью" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Источник (издание)</label>
+                      <Input value={a.source} onChange={(e) => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, source: e.target.value } : x))} className="rounded-sm" placeholder="Литературная газета" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Дата</label>
+                      <Input value={a.date} onChange={(e) => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, date: e.target.value } : x))} className="rounded-sm" placeholder="Март 2024" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Ссылка на материал (необязательно)</label>
+                    <Input value={a.url} onChange={(e) => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, url: e.target.value } : x))} className="rounded-sm" placeholder="https://…" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Фото к статье (необязательно)</label>
+                    <div className="flex gap-3 items-center">
+                      <label className={`flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-sm border border-border bg-background text-xs hover:bg-muted/40 transition-colors ${articleImgUploading === i ? 'opacity-50 pointer-events-none' : ''}`}>
+                        <Icon name={articleImgUploading === i ? 'Loader' : 'ImageUp'} size={14} className={articleImgUploading === i ? 'animate-spin' : ''} />
+                        {articleImgUploading === i ? 'Загружаю…' : 'Выбрать фото'}
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadArticleImg(e.target.files[0], i)} />
+                      </label>
+                      {a.image && (
+                        <>
+                          <img src={a.image} alt="" className="h-10 w-14 object-cover rounded-sm border border-border" />
+                          <button onClick={() => setArticles((arr) => arr.map((x, j) => j === i ? { ...x, image: '' } : x))} className="text-xs text-muted-foreground hover:text-destructive">Удалить</button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {articles.length === 0 && <p className="text-muted-foreground text-sm">Нет статей. Нажмите «Добавить статью».</p>}
+            </section>
+
+            {/* Галерея */}
+            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-serif text-2xl">Галерея</h2>
+                <div className="flex gap-2">
+                  <label className={`flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-sm border border-border bg-background text-xs hover:bg-muted/40 transition-colors ${galleryUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <Icon name={galleryUploading ? 'Loader' : 'ImagePlus'} size={14} className={galleryUploading ? 'animate-spin' : ''} />
+                    {galleryUploading ? 'Загружаю…' : 'Добавить фото'}
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadGalleryPhoto(e.target.files[0])} />
+                  </label>
+                  <Button size="sm" variant="outline" className="rounded-sm gap-2 text-xs" onClick={() => setGallery((g) => [...g, { type: 'video', url: '', caption: '' }])}>
+                    <Icon name="Video" size={14} /> Добавить видео
+                  </Button>
+                </div>
+              </div>
+              {gallery.map((item, i) => (
+                <div key={i} className="border border-border rounded-sm p-3 flex gap-4 items-start relative">
+                  <button onClick={() => setGallery((arr) => arr.filter((_, j) => j !== i))} className="absolute top-2 right-2 text-muted-foreground hover:text-destructive">
+                    <Icon name="X" size={14} />
+                  </button>
+                  {item.type === 'photo' && item.url && (
+                    <img src={item.url} alt="" className="h-16 w-20 object-cover rounded-sm border border-border shrink-0" />
+                  )}
+                  {item.type === 'video' && (
+                    <div className="shrink-0 flex items-center justify-center w-20 h-16 bg-muted rounded-sm border border-border">
+                      <Icon name="Video" size={20} className="text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="flex-1 space-y-2">
+                    {item.type === 'video' && (
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Ссылка YouTube</label>
+                        <Input value={item.url} onChange={(e) => setGallery((arr) => arr.map((x, j) => j === i ? { ...x, url: e.target.value } : x))} className="rounded-sm text-xs" placeholder="https://youtube.com/watch?v=…" />
+                      </div>
+                    )}
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Подпись (необязательно)</label>
+                      <Input value={item.caption} onChange={(e) => setGallery((arr) => arr.map((x, j) => j === i ? { ...x, caption: e.target.value } : x))} className="rounded-sm text-xs" placeholder="Описание фото или видео" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {gallery.length === 0 && <p className="text-muted-foreground text-sm">Нет материалов. Добавьте фото или видео.</p>}
             </section>
 
             <div className="flex justify-end">
