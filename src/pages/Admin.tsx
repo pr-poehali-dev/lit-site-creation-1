@@ -535,6 +535,10 @@ export default function Admin() {
                   <Icon name="Plus" size={14} /> Добавить книгу
                 </Button>
               </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Текст / пояснение к разделу</label>
+                <Textarea rows={3} value={content.books_desc || ''} onChange={(e) => setContent((c) => ({ ...c, books_desc: e.target.value }))} className="rounded-sm resize-none" placeholder="Напишите что-нибудь о своих книгах…" />
+              </div>
               {books.map((b, i) => (
                 <div key={i} className="border border-border rounded-sm p-4 space-y-3 relative">
                   <button onClick={() => setBooks((arr) => arr.filter((_, j) => j !== i))} className="absolute top-3 right-3 text-muted-foreground hover:text-destructive">

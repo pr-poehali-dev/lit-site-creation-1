@@ -361,7 +361,11 @@ export default function Index() {
       <section id="books" className="bg-primary text-primary-foreground py-24 paper-grain">
         <div className="max-w-6xl mx-auto px-6">
           <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Издано</p>
-          <h2 className="font-serif text-4xl sm:text-5xl mb-14">Мои книги</h2>
+          <h2 className="font-serif text-4xl sm:text-5xl mb-4">Мои книги</h2>
+          {siteContent.books_desc && (
+            <p className="text-primary-foreground/70 text-lg leading-relaxed mb-14 max-w-2xl whitespace-pre-line">{siteContent.books_desc}</p>
+          )}
+          {!siteContent.books_desc && <div className="mb-14" />}
           <div className="grid md:grid-cols-3 gap-6">
             {books.map((b, i) => (
               <div key={i} className="group relative bg-primary-foreground/5 border border-primary-foreground/15 rounded-sm hover:bg-primary-foreground/10 transition-colors overflow-hidden">
@@ -463,6 +467,7 @@ export default function Index() {
             <p className="drop-cap text-lg text-muted-foreground leading-relaxed mb-8 whitespace-pre-line">
               {siteContent.author_bio || 'Расскажите о себе в разделе «Настройки сайта».'}
             </p>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-4">Статистика</p>
             <div className="flex gap-8 flex-wrap">
               {[
                 [siteContent.stat1_num || '250+', siteContent.stat1_label || 'произведений'],
