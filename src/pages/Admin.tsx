@@ -670,16 +670,29 @@ export default function Admin() {
         {tab === 'works' && (
         <div>
         {visits && (
-          <div className="flex gap-6 mb-8 p-4 bg-card border border-border rounded-sm w-fit">
-            <div className="text-center">
-              <p className="text-2xl font-serif font-bold">{visits.today}</p>
-              <p className="text-xs text-muted-foreground">сегодня</p>
+          <div className="flex items-center gap-4 mb-8">
+            <div className="flex gap-6 p-4 bg-card border border-border rounded-sm">
+              <div className="text-center">
+                <p className="text-2xl font-serif font-bold">{visits.today}</p>
+                <p className="text-xs text-muted-foreground">сегодня</p>
+              </div>
+              <div className="w-px bg-border" />
+              <div className="text-center">
+                <p className="text-2xl font-serif font-bold">{visits.total}</p>
+                <p className="text-xs text-muted-foreground">всего посетителей</p>
+              </div>
             </div>
-            <div className="w-px bg-border" />
-            <div className="text-center">
-              <p className="text-2xl font-serif font-bold">{visits.total}</p>
-              <p className="text-xs text-muted-foreground">всего посетителей</p>
-            </div>
+            <Button
+              size="sm" variant="outline"
+              className="rounded-sm text-xs text-muted-foreground gap-1.5"
+              onClick={() => {
+                if (!confirm('Обнулить оба счётчика посещений?')) return;
+                fetch(VISITS_URL, { method: 'DELETE', headers: { 'X-Auth-Token': token } })
+                  .then(() => setVisits({ today: 0, total: 0 }));
+              }}
+            >
+              <Icon name="RotateCcw" size={13} /> Обнулить
+            </Button>
           </div>
         )}
         <div className="flex items-center justify-between mb-8">

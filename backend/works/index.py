@@ -29,11 +29,29 @@ def handler(event: dict, context) -> dict:
 
     # --- СЧЁТЧИК: POST ?action=visit (без авторизации) ---
     if action == 'visit' and method == 'POST':
+        referer = headers.get('referer', '') or headers.get('origin', '')
+        if 'poehali.dev' in referer:
+            return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'ok': True, 'skipped': True})}
         ip = (event.get('requestContext') or {}).get('identity', {}).get('sourceIp', '')
         conn = get_conn()
         cur = conn.cursor()
         try:
             cur.execute(f'INSERT INTO {SCHEMA}.visits (ip) VALUES (%s)', (ip,))
+            conn.commit()
+        finally:
+            cur.close()
+            conn.close()
+        return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'ok': True})}
+
+    # --- СЧЁТЧИК: DELETE ?action=visits (только автор, сброс) ---
+    if action == 'visits' and method == 'DELETE':
+        token = headers.get('x-auth-token', '')
+        if token != os.environ.get('ADMIN_PASSWORD', ''):
+            return {'statusCode': 401, 'headers': cors_headers(), 'body': json.dumps({'error': 'Нет доступа'})}
+        conn = get_conn()
+        cur = conn.cursor()
+        try:
+            cur.execute(f"DELETE FROM {SCHEMA}.visits")
             conn.commit()
         finally:
             cur.close()

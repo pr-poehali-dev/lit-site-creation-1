@@ -146,7 +146,7 @@ export default function WorkPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-6 py-16">
+      <div className="max-w-4xl mx-auto px-6 py-16">
         <button
           onClick={() => navigate('/#works')}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-12 text-sm"
