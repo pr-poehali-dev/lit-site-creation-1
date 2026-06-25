@@ -394,7 +394,7 @@ export default function Index() {
       </section>
 
       {/* BOARD */}
-      <section id="board" className="max-w-6xl mx-auto px-6 py-24">
+      <section id="board" className="max-w-7xl mx-auto px-6 py-24">
         <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Что нового</p>
         <h2 className="font-serif text-4xl sm:text-5xl mb-14">Доска объявлений</h2>
         <div className="grid md:grid-cols-2 gap-6">
@@ -452,8 +452,8 @@ export default function Index() {
 
       {/* ABOUT */}
       <section id="about" className="bg-secondary/40 py-24 paper-grain">
-        <div className="max-w-4xl mx-auto px-6 flex flex-col items-center text-center">
-          <div className="relative mb-10 w-64 sm:w-80">
+        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+          <div className="relative">
             <div className="aspect-[4/5] rounded-sm overflow-hidden border border-border">
               <img src={siteContent.author_photo || HERO_IMG} alt="Автор за работой" className="w-full h-full object-cover" />
             </div>
@@ -463,23 +463,25 @@ export default function Index() {
               </div>
             )}
           </div>
-          <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Об авторе</p>
-          <h2 className="font-serif text-4xl sm:text-5xl mb-8">Я пишу, чтобы<br /><span className="italic">расслышать мир</span></h2>
-          <p className="drop-cap text-lg text-muted-foreground leading-relaxed mb-8 whitespace-pre-line">
-            {siteContent.author_bio || 'Расскажите о себе в разделе «Настройки сайта».'}
-          </p>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-4">Статистика</p>
-          <div className="flex gap-8 flex-wrap justify-center">
-            {[
-              [siteContent.stat1_num || '250+', siteContent.stat1_label || 'произведений'],
-              [siteContent.stat2_num || '3', siteContent.stat2_label || 'книги'],
-              [siteContent.stat3_num || '14 лет', siteContent.stat3_label || 'в литературе'],
-            ].map(([n, l]) => (
-              <div key={l}>
-                <p className="font-serif text-3xl text-accent">{n}</p>
-                <p className="text-sm text-muted-foreground">{l}</p>
-              </div>
-            ))}
+          <div>
+            <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Об авторе</p>
+            <h2 className="font-serif text-4xl sm:text-5xl mb-8">Я пишу, чтобы<br /><span className="italic">расслышать мир</span></h2>
+            <p className="drop-cap text-lg text-muted-foreground leading-relaxed mb-8 whitespace-pre-line">
+              {siteContent.author_bio || 'Расскажите о себе в разделе «Настройки сайта».'}
+            </p>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-4">Статистика</p>
+            <div className="flex gap-8 flex-wrap">
+              {[
+                [siteContent.stat1_num || '250+', siteContent.stat1_label || 'произведений'],
+                [siteContent.stat2_num || '3', siteContent.stat2_label || 'книги'],
+                [siteContent.stat3_num || '14 лет', siteContent.stat3_label || 'в литературе'],
+              ].map(([n, l]) => (
+                <div key={l}>
+                  <p className="font-serif text-3xl text-accent">{n}</p>
+                  <p className="text-sm text-muted-foreground">{l}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

@@ -146,7 +146,7 @@ export default function WorkPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-6 py-16">
+      <div className={`${work.genre === 'Стихи' ? 'max-w-4xl' : 'max-w-6xl'} mx-auto px-6 py-16`}>
         <button
           onClick={() => navigate('/#works')}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-12 text-sm"
@@ -188,14 +188,22 @@ export default function WorkPage() {
 
         <div className="font-serif text-xl sm:text-2xl leading-[1.9] text-foreground">
           {work.body.split('\n').map((line, i) => {
+            const renderInline = (text: string) => {
+              const parts = text.split(/(\[color:[^\]]+\].*?\[\/color\])/g);
+              return parts.map((part, j) => {
+                const m = part.match(/^\[color:([^\]]+)\](.*)\[\/color\]$/s);
+                if (m) return <span key={j} style={{ color: m[1] }}>{m[2]}</span>;
+                return <span key={j}>{part}</span>;
+              });
+            };
             if (line.startsWith('**') && line.endsWith('**')) {
-              return <p key={i} className="font-bold mb-0">{line.slice(2, -2)}</p>;
+              return <p key={i} className="font-bold mb-0">{renderInline(line.slice(2, -2))}</p>;
             }
             if (line.startsWith('*') && line.endsWith('*') && line.length > 2) {
-              return <p key={i} className="italic mb-0">{line.slice(1, -1)}</p>;
+              return <p key={i} className="italic mb-0">{renderInline(line.slice(1, -1))}</p>;
             }
             if (line === '') return <br key={i} />;
-            return <p key={i} className="font-medium mb-0">{line}</p>;
+            return <p key={i} className="font-medium mb-0">{renderInline(line)}</p>;
           })}
         </div>
 

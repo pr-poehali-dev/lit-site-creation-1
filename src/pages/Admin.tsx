@@ -76,7 +76,6 @@ export default function Admin() {
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
     const text = form.body;
-    const selected = text.slice(start, end);
     const lineStart = text.lastIndexOf('\n', start - 1) + 1;
     const lineEnd = text.indexOf('\n', end);
     const fullEnd = lineEnd === -1 ? text.length : lineEnd;
@@ -90,6 +89,21 @@ export default function Admin() {
     const newBody = text.slice(0, lineStart) + formatted + text.slice(fullEnd);
     setForm({ ...form, body: newBody });
     setTimeout(() => { ta.focus(); ta.setSelectionRange(lineStart, lineStart + formatted.length); }, 0);
+  };
+
+  const applyColor = (color: string) => {
+    const ta = bodyRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const text = form.body;
+    const selected = text.slice(start, end);
+    if (!selected) return;
+    const stripped = selected.replace(/\[color:[^\]]+\]|\[\/color\]/g, '');
+    const formatted = color ? `[color:${color}]${stripped}[/color]` : stripped;
+    const newBody = text.slice(0, start) + formatted + text.slice(end);
+    setForm({ ...form, body: newBody });
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(start, start + formatted.length); }, 0);
   };
 
   const login = async () => {
@@ -834,6 +848,28 @@ export default function Admin() {
                   <button type="button" onClick={() => applyFormat('normal')} className="px-3 py-1 text-xs rounded-sm border border-border bg-card hover:bg-muted/40 transition-colors">Обычный</button>
                   <button type="button" onClick={() => applyFormat('italic')} className="px-3 py-1 text-xs rounded-sm border border-border bg-card hover:bg-muted/40 transition-colors italic">Курсив</button>
                   <button type="button" onClick={() => applyFormat('bold')} className="px-3 py-1 text-xs rounded-sm border border-border bg-card hover:bg-muted/40 transition-colors font-bold">Жирный</button>
+                  <div className="w-px bg-border mx-1" />
+                  <span className="text-xs text-muted-foreground self-center">Цвет:</span>
+                  {[
+                    { color: '#dc2626', label: 'Красный' },
+                    { color: '#2563eb', label: 'Синий' },
+                    { color: '#16a34a', label: 'Зелёный' },
+                    { color: '#d97706', label: 'Оранжевый' },
+                    { color: '#7c3aed', label: 'Фиолетовый' },
+                    { color: '#db2777', label: 'Розовый' },
+                    { color: '#0891b2', label: 'Бирюзовый' },
+                    { color: '#ca8a04', label: 'Золотой' },
+                  ].map(({ color, label }) => (
+                    <button
+                      key={color}
+                      type="button"
+                      title={label}
+                      onClick={() => applyColor(color)}
+                      className="w-5 h-5 rounded-sm border border-border hover:scale-110 transition-transform shrink-0"
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                  <button type="button" title="Убрать цвет" onClick={() => applyColor('')} className="px-2 py-1 text-xs rounded-sm border border-border bg-card hover:bg-muted/40 transition-colors text-muted-foreground">✕</button>
                 </div>
                 <Textarea
                   ref={bodyRef}
@@ -843,7 +879,7 @@ export default function Admin() {
                   rows={10}
                   className="rounded-sm resize-y font-serif text-base leading-relaxed"
                 />
-                <p className="text-xs text-muted-foreground mt-1.5">Выделите абзац и нажмите кнопку форматирования</p>
+                <p className="text-xs text-muted-foreground mt-1.5">Выделите текст и нажмите кнопку форматирования или цветной кубик</p>
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Иллюстрация (необязательно)</label>
