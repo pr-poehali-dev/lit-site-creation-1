@@ -53,6 +53,7 @@ export default function Admin() {
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const excerptRef = useRef<HTMLTextAreaElement>(null);
   const [tab, setTab] = useState<'works' | 'settings'>('works');
   const [content, setContent] = useState<Record<string, string>>({});
   const [contentSaving, setContentSaving] = useState(false);
@@ -91,20 +92,31 @@ export default function Admin() {
     setTimeout(() => { ta.focus(); ta.setSelectionRange(lineStart, lineStart + formatted.length); }, 0);
   };
 
-  const applyColor = (color: string) => {
-    const ta = bodyRef.current;
+  const applyColor = (color: string, ref: React.RefObject<HTMLTextAreaElement>, field: 'body' | 'excerpt') => {
+    const ta = ref.current;
     if (!ta) return;
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
-    const text = form.body;
+    const text = field === 'body' ? form.body : form.excerpt;
     const selected = text.slice(start, end);
     if (!selected) return;
     const stripped = selected.replace(/\[color:[^\]]+\]|\[\/color\]/g, '');
     const formatted = color ? `[color:${color}]${stripped}[/color]` : stripped;
-    const newBody = text.slice(0, start) + formatted + text.slice(end);
-    setForm({ ...form, body: newBody });
+    const newText = text.slice(0, start) + formatted + text.slice(end);
+    setForm((f) => ({ ...f, [field]: newText }));
     setTimeout(() => { ta.focus(); ta.setSelectionRange(start, start + formatted.length); }, 0);
   };
+
+  const COLOR_PALETTE = [
+    { color: '#dc2626', label: 'Красный' },
+    { color: '#2563eb', label: 'Синий' },
+    { color: '#16a34a', label: 'Зелёный' },
+    { color: '#d97706', label: 'Оранжевый' },
+    { color: '#7c3aed', label: 'Фиолетовый' },
+    { color: '#db2777', label: 'Розовый' },
+    { color: '#0891b2', label: 'Бирюзовый' },
+    { color: '#ca8a04', label: 'Золотой' },
+  ];
 
   const login = async () => {
     setLoginLoading(true);
@@ -834,7 +846,17 @@ export default function Admin() {
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Краткое описание (анонс)</label>
+                <div className="flex gap-1.5 mb-2 flex-wrap items-center">
+                  <span className="text-xs text-muted-foreground">Цвет:</span>
+                  {COLOR_PALETTE.map(({ color, label }) => (
+                    <button key={color} type="button" title={label} onClick={() => applyColor(color, excerptRef, 'excerpt')}
+                      className="w-5 h-5 rounded-sm border border-border hover:scale-110 transition-transform shrink-0"
+                      style={{ backgroundColor: color }} />
+                  ))}
+                  <button type="button" title="Убрать цвет" onClick={() => applyColor('', excerptRef, 'excerpt')} className="px-2 py-1 text-xs rounded-sm border border-border bg-card hover:bg-muted/40 transition-colors text-muted-foreground">✕</button>
+                </div>
                 <Textarea
+                  ref={excerptRef}
                   value={form.excerpt}
                   onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
                   placeholder="Несколько строк для привлечения внимания…"
@@ -850,26 +872,12 @@ export default function Admin() {
                   <button type="button" onClick={() => applyFormat('bold')} className="px-3 py-1 text-xs rounded-sm border border-border bg-card hover:bg-muted/40 transition-colors font-bold">Жирный</button>
                   <div className="w-px bg-border mx-1" />
                   <span className="text-xs text-muted-foreground self-center">Цвет:</span>
-                  {[
-                    { color: '#dc2626', label: 'Красный' },
-                    { color: '#2563eb', label: 'Синий' },
-                    { color: '#16a34a', label: 'Зелёный' },
-                    { color: '#d97706', label: 'Оранжевый' },
-                    { color: '#7c3aed', label: 'Фиолетовый' },
-                    { color: '#db2777', label: 'Розовый' },
-                    { color: '#0891b2', label: 'Бирюзовый' },
-                    { color: '#ca8a04', label: 'Золотой' },
-                  ].map(({ color, label }) => (
-                    <button
-                      key={color}
-                      type="button"
-                      title={label}
-                      onClick={() => applyColor(color)}
+                  {COLOR_PALETTE.map(({ color, label }) => (
+                    <button key={color} type="button" title={label} onClick={() => applyColor(color, bodyRef, 'body')}
                       className="w-5 h-5 rounded-sm border border-border hover:scale-110 transition-transform shrink-0"
-                      style={{ backgroundColor: color }}
-                    />
+                      style={{ backgroundColor: color }} />
                   ))}
-                  <button type="button" title="Убрать цвет" onClick={() => applyColor('')} className="px-2 py-1 text-xs rounded-sm border border-border bg-card hover:bg-muted/40 transition-colors text-muted-foreground">✕</button>
+                  <button type="button" title="Убрать цвет" onClick={() => applyColor('', bodyRef, 'body')} className="px-2 py-1 text-xs rounded-sm border border-border bg-card hover:bg-muted/40 transition-colors text-muted-foreground">✕</button>
                 </div>
                 <Textarea
                   ref={bodyRef}
