@@ -182,7 +182,11 @@ export default function WorkPage() {
 
         {work.excerpt && (
           <p className="text-muted-foreground italic text-lg leading-relaxed mb-10 border-l-2 border-accent pl-5">
-            {work.excerpt}
+            {work.excerpt.split(/(\[color:[^\]]+\].*?\[\/color\])/g).map((part, j) => {
+              const m = part.match(/^\[color:([^\]]+)\](.*)\[\/color\]$/s);
+              if (m) return <span key={j} style={{ color: m[1] }}>{m[2]}</span>;
+              return <span key={j}>{part}</span>;
+            })}
           </p>
         )}
 

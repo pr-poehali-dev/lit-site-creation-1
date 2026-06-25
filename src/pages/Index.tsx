@@ -452,7 +452,7 @@ export default function Index() {
 
       {/* ABOUT */}
       <section id="about" className="bg-secondary/40 py-24 paper-grain">
-        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div className="relative">
             <div className="aspect-[4/5] rounded-sm overflow-hidden border border-border">
               <img src={siteContent.author_photo || HERO_IMG} alt="Автор за работой" className="w-full h-full object-cover" />
