@@ -365,10 +365,10 @@ export default function Index() {
           <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Издано</p>
           <h2 className="font-serif text-4xl sm:text-5xl mb-4">Мои книги</h2>
           {siteContent.books_desc && (
-            <p className="text-primary-foreground/70 text-lg leading-relaxed mb-14 max-w-2xl whitespace-pre-line">{siteContent.books_desc}</p>
+            <p className="text-primary-foreground/70 text-lg leading-relaxed mb-14 max-w-5xl whitespace-pre-line">{siteContent.books_desc}</p>
           )}
           {!siteContent.books_desc && <div className="mb-14" />}
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-4 lg:grid-cols-5 gap-6">
             {books.map((b, i) => (
               <div key={i} className="group relative bg-primary-foreground/5 border border-primary-foreground/15 rounded-sm hover:bg-primary-foreground/10 transition-colors overflow-hidden">
                 {b.cover ? (
@@ -390,7 +390,7 @@ export default function Index() {
                 </div>
               </div>
             ))}
-            {books.length === 0 && <p className="text-primary-foreground/50 col-span-3 text-center py-8">Книги пока не добавлены</p>}
+            {books.length === 0 && <p className="text-primary-foreground/50 col-span-5 text-center py-8">Книги пока не добавлены</p>}
           </div>
         </div>
       </section>
