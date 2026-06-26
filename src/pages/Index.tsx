@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 const WORKS_URL = 'https://functions.poehali.dev/97e50fe2-d8c6-47a8-86fc-bbb58aeb0192';
 const VISITS_URL = WORKS_URL + '?action=visit';
+const SUBSCRIBE_URL = 'https://functions.poehali.dev/8d276d34-4f3a-4d3d-bf15-b95bbcccce2a';
 
 interface Work {
   id: number;
@@ -62,6 +63,8 @@ export default function Index() {
   const [announcements, setAnnouncements] = useState<{date:string;tag:string;text:string}[]>([]);
   const [articles, setArticles] = useState<{title:string;source:string;date:string;tag:string;url:string;image:string}[]>([]);
   const [gallery, setGallery] = useState<{type:'photo'|'video';url:string;caption:string}[]>([]);
+  const [subEmail, setSubEmail] = useState('');
+  const [subStatus, setSubStatus] = useState<'idle'|'loading'|'ok'|'already'|'error'>('idle');
 
   useEffect(() => {
     if (!localStorage.getItem('admin_token')) {
@@ -495,12 +498,49 @@ export default function Index() {
         <p className="text-muted-foreground leading-relaxed mb-8 max-w-md mx-auto">
           Оставьте почту — и я пришлю весточку, когда появится новое стихотворение, рассказ или книга. Не чаще раза в месяц, обещаю.
         </p>
-        <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
-          <Input type="email" placeholder="ваша почта" className="rounded-sm bg-card border-border" />
-          <Button type="submit" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-sm px-8 whitespace-nowrap">
-            Подписаться
-          </Button>
-        </form>
+        {subStatus === 'ok' && (
+          <p className="text-accent font-serif text-xl">Спасибо! Письмо-подтверждение уже летит к вам.</p>
+        )}
+        {subStatus === 'already' && (
+          <p className="text-muted-foreground font-serif text-xl">Вы уже подписаны — письма придут при выходе новинок.</p>
+        )}
+        {subStatus !== 'ok' && subStatus !== 'already' && (
+          <form
+            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setSubStatus('loading');
+              try {
+                const res = await fetch(SUBSCRIBE_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: subEmail }),
+                });
+                const data = await res.json();
+                if (data.status === 'already_subscribed') setSubStatus('already');
+                else if (res.ok) setSubStatus('ok');
+                else setSubStatus('error');
+              } catch {
+                setSubStatus('error');
+              }
+            }}
+          >
+            <Input
+              type="email"
+              placeholder="ваша почта"
+              className="rounded-sm bg-card border-border"
+              value={subEmail}
+              onChange={(e) => setSubEmail(e.target.value)}
+              required
+            />
+            <Button type="submit" disabled={subStatus === 'loading'} className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-sm px-8 whitespace-nowrap">
+              {subStatus === 'loading' ? 'Отправляю…' : 'Подписаться'}
+            </Button>
+          </form>
+        )}
+        {subStatus === 'error' && (
+          <p className="text-destructive text-sm mt-3">Что-то пошло не так. Попробуйте ещё раз.</p>
+        )}
       </section>
 
       {/* CONTACTS */}
