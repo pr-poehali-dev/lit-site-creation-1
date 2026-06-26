@@ -154,7 +154,7 @@ export default function WorkPage() {
     <div className="min-h-screen bg-background">
       <div className={`${work.genre === 'Стихи' ? 'max-w-4xl' : 'max-w-6xl'} mx-auto px-6 py-16`}>
         <button
-          onClick={() => navigate('/#works')}
+          onClick={() => { navigate('/'); setTimeout(() => document.getElementById('works')?.scrollIntoView({ behavior: 'smooth' }), 150); }}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-12 text-sm"
         >
           <Icon name="ArrowLeft" size={16} />
