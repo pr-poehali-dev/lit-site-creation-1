@@ -289,7 +289,7 @@ export default function Index() {
       </section>
 
       {/* WORKS */}
-      <section id="works" className="max-w-6xl mx-auto px-6 py-24">
+      <section id="works" className="max-w-[1600px] mx-auto px-6 py-24">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
           <div>
             <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Архив</p>
@@ -337,7 +337,7 @@ export default function Index() {
           {!worksLoading && filtered.length === 0 && (
             <p className="py-16 text-center text-muted-foreground font-serif text-2xl italic">Ничего не найдено…</p>
           )}
-          <div className="grid md:grid-cols-2 gap-x-10">
+          <div className="grid md:grid-cols-2 gap-x-16">
           {!worksLoading && filtered.map((w) => (
             <article key={w.id} onClick={() => navigate(`/work/${w.id}`)} className="group py-6 border-b border-border hover:bg-card/60 transition-colors px-2 -mx-2 rounded-sm cursor-pointer">
               <div className="flex items-center gap-3 mb-2">
