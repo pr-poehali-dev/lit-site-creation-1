@@ -199,9 +199,9 @@ export default function WorkPage() {
         <div className="font-serif text-xl sm:text-2xl leading-[1.9] text-foreground">
           {work.body.split('\n').map((line, i) => {
             const renderInline = (text: string) => {
-              const parts = text.split(/(\[color:[^\]]+\].*?\[\/color\])/g);
+              const parts = text.split(/(\[color:[^\]]*][^[]*\[\/color])/g);
               return parts.map((part, j) => {
-                const m = part.match(/^\[color:([^\]]+)\](.*)\[\/color\]$/s);
+                const m = part.match(/^\[color:([^\]]*)\]([\s\S]*?)\[\/color\]$/);
                 if (m) return <span key={j} style={{ color: m[1] }}>{m[2]}</span>;
                 return <span key={j}>{part}</span>;
               });
