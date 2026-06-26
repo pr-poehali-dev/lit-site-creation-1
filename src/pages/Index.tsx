@@ -575,10 +575,36 @@ export default function Index() {
               )}
             </div>
           </div>
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <Input placeholder="Ваше имя" className="rounded-sm bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40" />
-            <Input type="email" placeholder="Почта для ответа" className="rounded-sm bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40" />
-            <Textarea placeholder="Ваше сообщение…" rows={5} className="rounded-sm bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 resize-none" />
+          <form className="space-y-4" onSubmit={async (e) => {
+            e.preventDefault();
+            const f = e.currentTarget;
+            const name = (f.elements.namedItem('name') as HTMLInputElement).value;
+            const email = (f.elements.namedItem('email') as HTMLInputElement).value;
+            const message = (f.elements.namedItem('message') as HTMLTextAreaElement).value;
+            const btn = f.querySelector('button[type="submit"]') as HTMLButtonElement;
+            btn.disabled = true;
+            btn.textContent = 'Отправляю…';
+            try {
+              const res = await fetch(WORKS_URL + '?action=contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, message }),
+              });
+              if (res.ok) {
+                btn.textContent = 'Отправлено!';
+                f.reset();
+              } else {
+                btn.textContent = 'Ошибка, попробуйте ещё раз';
+                btn.disabled = false;
+              }
+            } catch {
+              btn.textContent = 'Ошибка, попробуйте ещё раз';
+              btn.disabled = false;
+            }
+          }}>
+            <Input name="name" placeholder="Ваше имя" required className="rounded-sm bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40" />
+            <Input name="email" type="email" placeholder="Почта для ответа" required className="rounded-sm bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40" />
+            <Textarea name="message" placeholder="Ваше сообщение…" rows={5} required className="rounded-sm bg-primary-foreground/5 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 resize-none" />
             <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-sm">
               Отправить письмо
             </Button>
