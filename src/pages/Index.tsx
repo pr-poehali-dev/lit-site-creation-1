@@ -347,7 +347,13 @@ export default function Index() {
               </div>
               <div>
                 <h3 className="font-serif text-2xl sm:text-3xl mb-3 group-hover:text-accent transition-colors">{w.title}</h3>
-                <p className="text-muted-foreground leading-relaxed max-w-2xl text-sm">{w.excerpt}</p>
+                <p className="text-muted-foreground leading-relaxed max-w-2xl text-sm">
+                  {w.excerpt.split(/(\[color:[^\]]+\].*?\[\/color\])/g).map((part, j) => {
+                    const m = part.match(/^\[color:([^\]]+)\](.*)\[\/color\]$/s);
+                    if (m) return <span key={j} style={{ color: m[1] }}>{m[2]}</span>;
+                    return <span key={j}>{part}</span>;
+                  })}
+                </p>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground text-sm whitespace-nowrap">
                 {w.read_time && <><Icon name="Clock" size={15} /> {w.read_time}</>}
