@@ -361,7 +361,7 @@ export default function Index() {
 
       {/* BOOKS */}
       <section id="books" className="bg-primary text-primary-foreground py-24 paper-grain">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-[1600px] mx-auto px-6">
           <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Издано</p>
           <h2 className="font-serif text-4xl sm:text-5xl mb-4">Мои книги</h2>
           {siteContent.books_desc && (
@@ -454,7 +454,7 @@ export default function Index() {
 
       {/* ABOUT */}
       <section id="about" className="bg-secondary/40 py-24 paper-grain">
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+        <div className="max-w-[1600px] mx-auto px-6 grid md:grid-cols-2 gap-16 items-start">
           <div className="relative">
             <div className="aspect-[4/5] rounded-sm overflow-hidden border border-border">
               <img src={siteContent.author_photo || HERO_IMG} alt="Автор за работой" className="w-full h-full object-cover" />
