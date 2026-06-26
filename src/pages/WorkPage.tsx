@@ -52,8 +52,14 @@ export default function WorkPage() {
       .then((r) => r.json())
       .then((data) => {
         const found = Array.isArray(data) ? data.find((w: Work) => w.id === Number(id)) : data;
-        if (found) setWork(found);
-        else setError(true);
+        if (found) {
+          setWork(found);
+          document.title = `${found.title} — Алексей Ушаков`;
+          const desc = found.excerpt?.replace(/\[color:[^\]]+\]|\[\/color\]/g, '') || `${found.genre} Алексея Ушакова`;
+          document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
+          document.querySelector('meta[property="og:title"]')?.setAttribute('content', `${found.title} — Алексей Ушаков`);
+          document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
+        } else setError(true);
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
