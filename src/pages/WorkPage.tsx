@@ -197,24 +197,25 @@ export default function WorkPage() {
         )}
 
         <div className="font-serif text-xl sm:text-2xl leading-[1.9] text-foreground">
-          {work.body.split('\n').map((line, i) => {
-            const renderInline = (text: string) => {
-              const parts = text.split(/(\[color:[^\]]*][^[]*\[\/color])/g);
-              return parts.map((part, j) => {
-                const m = part.match(/^\[color:([^\]]*)\]([\s\S]*?)\[\/color\]$/);
-                if (m) return <span key={j} style={{ color: m[1] }}>{m[2]}</span>;
-                return <span key={j}>{part}</span>;
+          {(() => {
+            const renderLines = (text: string, color?: string) =>
+              text.split('\n').map((line, i) => {
+                const style = color ? { color } : undefined;
+                if (line.startsWith('**') && line.endsWith('**'))
+                  return <p key={i} className="font-bold mb-0" style={style}>{line.slice(2, -2)}</p>;
+                if (line.startsWith('*') && line.endsWith('*') && line.length > 2)
+                  return <p key={i} className="italic mb-0" style={style}>{line.slice(1, -1)}</p>;
+                if (line === '') return <br key={i} />;
+                return <p key={i} className="font-medium mb-0" style={style}>{line}</p>;
               });
-            };
-            if (line.startsWith('**') && line.endsWith('**')) {
-              return <p key={i} className="font-bold mb-0">{renderInline(line.slice(2, -2))}</p>;
-            }
-            if (line.startsWith('*') && line.endsWith('*') && line.length > 2) {
-              return <p key={i} className="italic mb-0">{renderInline(line.slice(1, -1))}</p>;
-            }
-            if (line === '') return <br key={i} />;
-            return <p key={i} className="font-medium mb-0">{renderInline(line)}</p>;
-          })}
+
+            const segments = work.body.split(/(\[color:[^\]]+\][\s\S]*?\[\/color\])/g);
+            return segments.map((seg, idx) => {
+              const m = seg.match(/^\[color:([^\]]+)\]([\s\S]*?)\[\/color\]$/);
+              if (m) return <span key={idx}>{renderLines(m[2], m[1])}</span>;
+              return <span key={idx}>{renderLines(seg)}</span>;
+            });
+          })()}
         </div>
 
         {work.audio_url && (
