@@ -307,21 +307,21 @@ export default function Index() {
         </div>
 
         {/* genre cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-14">
+        <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 mb-14">
           {GENRES.map((g) => (
             <button
               key={g.key}
               onClick={() => setActiveGenre(activeGenre === g.key ? 'Все' : g.key)}
-              className={`group text-left paper-grain p-6 rounded-sm border transition-all duration-300 ${
+              className={`group text-left paper-grain p-4 rounded-sm border transition-all duration-300 ${
                 activeGenre === g.key ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border hover:border-accent/60'
               }`}
             >
-              <Icon name={g.icon} size={28} className={`mb-4 ${activeGenre === g.key ? 'text-primary-foreground' : 'text-accent'}`} />
-              <div className="flex items-baseline justify-between mb-2">
-                <h3 className="font-serif text-2xl">{g.key}</h3>
-                <span className={`text-xs ${activeGenre === g.key ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{genreCount(g.key)}</span>
+              <Icon name={g.icon} size={22} className={`mb-2 ${activeGenre === g.key ? 'text-primary-foreground' : 'text-accent'}`} />
+              <div className="flex items-baseline justify-between mb-1">
+                <h3 className="font-serif text-lg leading-tight">{g.key}</h3>
+                <span className={`text-xs ml-1 ${activeGenre === g.key ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{genreCount(g.key)}</span>
               </div>
-              <p className={`text-sm leading-relaxed ${activeGenre === g.key ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>{g.desc}</p>
+              <p className={`text-xs leading-relaxed hidden sm:block ${activeGenre === g.key ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>{g.desc}</p>
             </button>
           ))}
         </div>
@@ -337,29 +337,25 @@ export default function Index() {
           {!worksLoading && filtered.length === 0 && (
             <p className="py-16 text-center text-muted-foreground font-serif text-2xl italic">Ничего не найдено…</p>
           )}
+          <div className="grid md:grid-cols-2 gap-x-10">
           {!worksLoading && filtered.map((w) => (
-            <article key={w.id} onClick={() => navigate(`/work/${w.id}`)} className="group grid md:grid-cols-[160px_1fr_auto] gap-4 md:gap-8 items-start py-8 border-b border-border hover:bg-card/60 transition-colors px-2 -mx-2 rounded-sm cursor-pointer">
-              <div className="text-sm text-muted-foreground">
+            <article key={w.id} onClick={() => navigate(`/work/${w.id}`)} className="group py-6 border-b border-border hover:bg-card/60 transition-colors px-2 -mx-2 rounded-sm cursor-pointer">
+              <div className="flex items-center gap-3 mb-2">
                 <span className="text-accent uppercase tracking-widest text-xs">{w.genre}</span>
-                <p className="mt-1">
-                  {new Date(w.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
-                </p>
+                <span className="text-muted-foreground text-xs">{new Date(w.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                {w.read_time && <span className="text-muted-foreground text-xs ml-auto flex items-center gap-1"><Icon name="Clock" size={12} />{w.read_time}</span>}
               </div>
-              <div>
-                <h3 className="font-serif text-2xl sm:text-3xl mb-3 group-hover:text-accent transition-colors">{w.title}</h3>
-                <p className="text-muted-foreground leading-relaxed max-w-2xl text-sm">
-                  {w.excerpt.split(/(\[color:[^\]]+\].*?\[\/color\])/g).map((part, j) => {
-                    const m = part.match(/^\[color:([^\]]+)\](.*)\[\/color\]$/s);
-                    if (m) return <span key={j} style={{ color: m[1] }}>{m[2]}</span>;
-                    return <span key={j}>{part}</span>;
-                  })}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground text-sm whitespace-nowrap">
-                {w.read_time && <><Icon name="Clock" size={15} /> {w.read_time}</>}
-              </div>
+              <h3 className="font-serif text-xl sm:text-2xl mb-2 group-hover:text-accent transition-colors">{w.title}</h3>
+              <p className="text-muted-foreground leading-relaxed text-sm">
+                {w.excerpt.split(/(\[color:[^\]]+\].*?\[\/color\])/g).map((part, j) => {
+                  const m = part.match(/^\[color:([^\]]+)\](.*)\[\/color\]$/s);
+                  if (m) return <span key={j} style={{ color: m[1] }}>{m[2]}</span>;
+                  return <span key={j}>{part}</span>;
+                })}
+              </p>
             </article>
           ))}
+          </div>
         </div>
       </section>
 
