@@ -477,7 +477,7 @@ export default function Index() {
               <Icon name="X" size={32} />
             </button>
             <div onClick={(e) => e.stopPropagation()} className="w-full h-full flex flex-col items-center justify-center gap-3">
-              <img src={lightbox.url} alt={lightbox.caption} className="max-w-full max-h-screen w-auto h-auto object-contain" />
+              <img src={lightbox.url} alt={lightbox.caption} className="max-w-full max-h-[88vh] w-auto h-auto object-contain" />
               {lightbox.caption && (
                 <p className="text-white/70 italic text-sm text-center">{lightbox.caption}</p>
               )}
