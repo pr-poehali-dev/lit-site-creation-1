@@ -657,6 +657,15 @@ export default function Admin() {
               {books.length === 0 && <p className="text-muted-foreground text-sm">Нет книг. Нажмите «Добавить книгу».</p>}
             </section>
 
+            {/* Описание галереи */}
+            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
+              <h2 className="font-serif text-2xl mb-2">Галерея — описание</h2>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Текст над фотографиями</label>
+                <RefTextarea defaultValue={content.gallery_desc || ''} field="gallery_desc" store={contentRef} placeholder="Любимые фото и видео, вдохновляющие мою музу." />
+              </div>
+            </section>
+
             {/* Галерея */}
             <section className="bg-card border border-border rounded-sm p-6 space-y-4">
               <div className="flex items-center justify-between">
@@ -671,10 +680,6 @@ export default function Admin() {
                     <Icon name="Video" size={14} /> Добавить видео
                   </Button>
                 </div>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground mb-1.5 block">Описание раздела</label>
-                <RefTextarea defaultValue={content.gallery_desc || ''} field="gallery_desc" store={contentRef} placeholder="Любимые фото и видео, вдохновляющие мою музу." />
               </div>
               {gallery.map((item, i) => (
                 <div
