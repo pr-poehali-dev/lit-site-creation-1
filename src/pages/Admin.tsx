@@ -13,17 +13,19 @@ const GENRES = ['Стихи', 'Рассказ', 'Фантазия', 'Эссе', 
 
 function LocalTextarea({ value, onCommit, placeholder, rows = 3 }: { value: string; onCommit: (v: string) => void; placeholder?: string; rows?: number }) {
   const [local, setLocal] = useState(value);
-  useEffect(() => { setLocal(value); }, [value]);
+  const committed = useRef(value);
+  if (value !== committed.current) { committed.current = value; setLocal(value); }
   return (
-    <Textarea rows={rows} value={local} onChange={(e) => setLocal(e.target.value)} onBlur={() => onCommit(local)} className="rounded-sm" placeholder={placeholder} />
+    <Textarea rows={rows} value={local} onChange={(e) => setLocal(e.target.value)} onBlur={(e) => { committed.current = e.target.value; onCommit(e.target.value); }} className="rounded-sm" placeholder={placeholder} />
   );
 }
 
 function LocalInput({ value, onCommit, placeholder, className }: { value: string; onCommit: (v: string) => void; placeholder?: string; className?: string }) {
   const [local, setLocal] = useState(value);
-  useEffect(() => { setLocal(value); }, [value]);
+  const committed = useRef(value);
+  if (value !== committed.current) { committed.current = value; setLocal(value); }
   return (
-    <Input value={local} onChange={(e) => setLocal(e.target.value)} onBlur={() => onCommit(local)} className={className ?? 'rounded-sm'} placeholder={placeholder} />
+    <Input value={local} onChange={(e) => setLocal(e.target.value)} onBlur={(e) => { committed.current = e.target.value; onCommit(e.target.value); }} className={className ?? 'rounded-sm'} placeholder={placeholder} />
   );
 }
 
