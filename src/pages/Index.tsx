@@ -238,7 +238,7 @@ export default function Index() {
             <div className="w-12 h-px mb-8 animate-fade-in" style={{animationDelay: '0.2s', background: 'hsl(38 65% 48% / 0.5)'}} />
 
             {/* Подзаголовок */}
-            <p className="animate-fade-up text-base leading-relaxed mb-12 max-w-sm" style={{ animationDelay: '0.25s', opacity: 0, color: 'hsl(38 15% 65%)' }}>
+            <p className="animate-fade-up text-base leading-relaxed mb-12 max-w-[26rem] whitespace-pre-line" style={{ animationDelay: '0.25s', opacity: 0, color: 'hsl(38 15% 65%)' }}>
               {siteContent.hero_subtitle || 'Здесь живут мои стихи, рассказы, фантазии и эссе. Заходите без спешки — лучшее читается медленно.'}
             </p>
 

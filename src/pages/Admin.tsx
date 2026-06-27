@@ -409,7 +409,7 @@ export default function Admin() {
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Подзаголовок</label>
-                <Textarea rows={2} value={content.hero_subtitle || ''} onChange={(e) => setContent((c) => ({ ...c, hero_subtitle: e.target.value }))} className="rounded-sm resize-none" placeholder="Здесь живут мои стихи…" />
+                <Textarea rows={4} value={content.hero_subtitle || ''} onChange={(e) => setContent((c) => ({ ...c, hero_subtitle: e.target.value }))} className="rounded-sm" placeholder="Здесь живут мои стихи…" />
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Фото автора (правая половина экрана)</label>
