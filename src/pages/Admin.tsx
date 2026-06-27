@@ -643,12 +643,20 @@ export default function Admin() {
               {books.length === 0 && <p className="text-muted-foreground text-sm">Нет книг. Нажмите «Добавить книгу».</p>}
             </section>
 
-            {/* Галерея */}
+            {/* Описание галереи — вынесено отдельно чтобы курсор не сбрасывался */}
+            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
+              <h2 className="font-serif text-2xl mb-2">Галерея — описание</h2>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Описание раздела</label>
+                <Textarea rows={3} key={`gd_${!!content.gallery_desc}`} defaultValue={content.gallery_desc || ''} onBlur={(e) => setContent((c) => ({ ...c, gallery_desc: e.target.value }))} className="rounded-sm" placeholder="Любимые фото и видео, вдохновляющие мою музу." />
+              </div>
+            </section>
+
+            {/* Галерея — фото и видео */}
             <section className="bg-card border border-border rounded-sm p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="font-serif text-2xl">Галерея</h2>
+                <h2 className="font-serif text-2xl">Галерея — фото и видео</h2>
                 <div className="flex gap-2">
-
                   <label className={`flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-sm border border-border bg-background text-xs hover:bg-muted/40 transition-colors ${galleryUploading ? 'opacity-50 pointer-events-none' : ''}`}>
                     <Icon name={galleryUploading ? 'Loader' : 'ImagePlus'} size={14} className={galleryUploading ? 'animate-spin' : ''} />
                     {galleryUploading ? 'Загружаю…' : 'Добавить фото'}
@@ -658,10 +666,6 @@ export default function Admin() {
                     <Icon name="Video" size={14} /> Добавить видео
                   </Button>
                 </div>
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground mb-1.5 block">Описание раздела</label>
-                <Textarea rows={3} key={`gallery_desc_${!!content.gallery_desc}`} defaultValue={content.gallery_desc || ''} onBlur={(e) => setContent((c) => ({ ...c, gallery_desc: e.target.value }))} className="rounded-sm" placeholder="Любимые фото и видео, вдохновляющие мою музу." />
               </div>
               {gallery.map((item, i) => (
                 <div
