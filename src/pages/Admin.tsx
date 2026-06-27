@@ -62,6 +62,14 @@ export default function Admin() {
   const [announcements, setAnnouncements] = useState<{date:string;tag:string;text:string}[]>([]);
   const [articles, setArticles] = useState<{title:string;source:string;date:string;tag:string;url:string;image:string}[]>([]);
   const [gallery, setGallery] = useState<{type:'photo'|'video';url:string;caption:string}[]>([]);
+  const [genres, setGenres] = useState([
+    { key: 'Стихи', icon: 'Feather', desc: 'Рифмы и верлибры о любви, времени и тишине' },
+    { key: 'Рассказы', icon: 'BookOpen', desc: 'Короткие истории с неожиданным дыханием' },
+    { key: 'Фантазии', icon: 'Sparkles', desc: 'Миры на грани сна и реальности' },
+    { key: 'Эссе', icon: 'PenLine', desc: 'Размышления о слове, искусстве и человеке' },
+    { key: 'Статьи', icon: 'Newspaper', desc: 'Интервью, критика, обзоры' },
+    { key: 'Разное', icon: 'Shuffle', desc: 'Афоризмы, экспериментальная поэзия и другие жанры' },
+  ]);
   const dragIndexRef = useRef<number | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState<number | null>(null);
@@ -165,12 +173,13 @@ export default function Admin() {
         try { setAnnouncements(JSON.parse(data.announcements || '[]')); } catch { setAnnouncements([]); }
         try { setArticles(JSON.parse(data.articles || '[]')); } catch { setArticles([]); }
         try { setGallery(JSON.parse(data.gallery || '[]')); } catch { setGallery([]); }
+        try { const g = JSON.parse(data.genres || '[]'); if (g.length === 6) setGenres(g); } catch { /* дефолт */ }
       });
   };
 
   const saveContent = async (extra?: Record<string, string>) => {
     setContentSaving(true);
-    const payload = { ...content, ...extra, books: JSON.stringify(books), announcements: JSON.stringify(announcements), articles: JSON.stringify(articles), gallery: JSON.stringify(gallery) };
+    const payload = { ...content, ...extra, books: JSON.stringify(books), announcements: JSON.stringify(announcements), articles: JSON.stringify(articles), gallery: JSON.stringify(gallery), genres: JSON.stringify(genres) };
     await fetch(WORKS_URL + '?action=content', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
@@ -496,6 +505,26 @@ export default function Admin() {
                     <Input value={content.stat3_label || ''} onChange={(e) => setContent((c) => ({ ...c, stat3_label: e.target.value }))} className="rounded-sm mt-1" placeholder="в литературе" />
                   </div>
                 </div>
+              </div>
+            </section>
+
+            {/* Жанры */}
+            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
+              <h2 className="font-serif text-2xl mb-2">Жанры произведений</h2>
+              <p className="text-sm text-muted-foreground">Названия и подписи шести квадратиков на странице «Произведения».</p>
+              <div className="space-y-3">
+                {genres.map((g, i) => (
+                  <div key={i} className="grid sm:grid-cols-2 gap-3 p-3 border border-border rounded-sm">
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Название жанра</label>
+                      <Input value={g.key} onChange={(e) => setGenres((arr) => arr.map((x, j) => j === i ? { ...x, key: e.target.value } : x))} className="rounded-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">Описание под названием</label>
+                      <Input value={g.desc} onChange={(e) => setGenres((arr) => arr.map((x, j) => j === i ? { ...x, desc: e.target.value } : x))} className="rounded-sm" />
+                    </div>
+                  </div>
+                ))}
               </div>
             </section>
 

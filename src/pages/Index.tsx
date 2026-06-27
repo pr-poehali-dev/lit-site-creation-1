@@ -35,13 +35,13 @@ const NAV = [
   { id: 'contacts', label: 'Контакты' },
 ];
 
-const GENRES = [
-  { key: 'Стихи', icon: 'Feather', count: 48, desc: 'Рифмы и верлибры о любви, времени и тишине' },
-  { key: 'Рассказы', icon: 'BookOpen', count: 23, desc: 'Короткие истории с неожиданным дыханием' },
-  { key: 'Фантазии', icon: 'Sparkles', count: 17, desc: 'Миры на грани сна и реальности' },
-  { key: 'Эссе', icon: 'PenLine', count: 12, desc: 'Размышления о слове, искусстве и человеке' },
-  { key: 'Статьи', icon: 'Newspaper', count: 0, desc: 'Интервью, критика, обзоры' },
-  { key: 'Разное', icon: 'Shuffle', count: 0, desc: 'Афоризмы, экспериментальная поэзия и другие жанры' },
+const GENRES_DEFAULT = [
+  { key: 'Стихи', icon: 'Feather', desc: 'Рифмы и верлибры о любви, времени и тишине' },
+  { key: 'Рассказы', icon: 'BookOpen', desc: 'Короткие истории с неожиданным дыханием' },
+  { key: 'Фантазии', icon: 'Sparkles', desc: 'Миры на грани сна и реальности' },
+  { key: 'Эссе', icon: 'PenLine', desc: 'Размышления о слове, искусстве и человеке' },
+  { key: 'Статьи', icon: 'Newspaper', desc: 'Интервью, критика, обзоры' },
+  { key: 'Разное', icon: 'Shuffle', desc: 'Афоризмы, экспериментальная поэзия и другие жанры' },
 ];
 
 
@@ -68,6 +68,7 @@ export default function Index() {
   const [subStatus, setSubStatus] = useState<'idle'|'loading'|'ok'|'already'|'error'>('idle');
   const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
   const [lightbox, setLightbox] = useState<{url: string; caption: string} | null>(null);
+  const [genres, setGenres] = useState(GENRES_DEFAULT);
 
   useEffect(() => {
     if (!localStorage.getItem('admin_token')) {
@@ -89,6 +90,10 @@ export default function Index() {
         try { setAnnouncements(JSON.parse(data.announcements || '[]')); } catch { setAnnouncements([]); }
         try { setArticles(JSON.parse(data.articles || '[]')); } catch { setArticles([]); }
         try { setGallery(JSON.parse(data.gallery || '[]')); } catch { setGallery([]); }
+        try {
+          const saved = JSON.parse(data.genres || '[]');
+          if (saved.length === 6) setGenres(saved);
+        } catch { /* используем дефолт */ }
       });
   }, []);
 
@@ -318,7 +323,7 @@ export default function Index() {
 
         {/* genre cards */}
         <div className="grid grid-cols-3 lg:grid-cols-6 gap-3 mb-14">
-          {GENRES.map((g) => (
+          {genres.map((g) => (
             <button
               key={g.key}
               onClick={() => setActiveGenre(activeGenre === g.key ? 'Все' : g.key)}
