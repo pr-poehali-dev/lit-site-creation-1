@@ -15,14 +15,15 @@ function LocalTextarea({ value, onCommit, placeholder, rows = 3 }: { value: stri
   const [local, setLocal] = useState(value);
   useEffect(() => { setLocal(value); }, [value]);
   return (
-    <Textarea
-      rows={rows}
-      value={local}
-      onChange={(e) => setLocal(e.target.value)}
-      onBlur={() => onCommit(local)}
-      className="rounded-sm"
-      placeholder={placeholder}
-    />
+    <Textarea rows={rows} value={local} onChange={(e) => setLocal(e.target.value)} onBlur={() => onCommit(local)} className="rounded-sm" placeholder={placeholder} />
+  );
+}
+
+function LocalInput({ value, onCommit, placeholder, className }: { value: string; onCommit: (v: string) => void; placeholder?: string; className?: string }) {
+  const [local, setLocal] = useState(value);
+  useEffect(() => { setLocal(value); }, [value]);
+  return (
+    <Input value={local} onChange={(e) => setLocal(e.target.value)} onBlur={() => onCommit(local)} className={className ?? 'rounded-sm'} placeholder={placeholder} />
   );
 }
 
@@ -416,15 +417,15 @@ export default function Admin() {
               <h2 className="font-serif text-2xl mb-2">Главная страница</h2>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Подпись над заголовком (маленький текст)</label>
-                <Input value={content.hero_label || ''} onChange={(e) => setContent((c) => ({ ...c, hero_label: e.target.value }))} className="rounded-sm" placeholder="Литературный дневник" />
+                <LocalInput value={content.hero_label || ''} onCommit={(v) => setContent((c) => ({ ...c, hero_label: v }))} placeholder="Литературный дневник" />
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Главный заголовок</label>
-                <Textarea rows={2} value={content.hero_title || ''} onChange={(e) => setContent((c) => ({ ...c, hero_title: e.target.value }))} className="rounded-sm resize-none" placeholder="Слова, которым нужна тишина…" />
+                <LocalTextarea rows={2} value={content.hero_title || ''} onCommit={(v) => setContent((c) => ({ ...c, hero_title: v }))} placeholder="Слова, которым нужна тишина…" />
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Подзаголовок</label>
-                <Textarea rows={4} value={content.hero_subtitle || ''} onChange={(e) => setContent((c) => ({ ...c, hero_subtitle: e.target.value }))} className="rounded-sm" placeholder="Здесь живут мои стихи…" />
+                <LocalTextarea rows={4} value={content.hero_subtitle || ''} onCommit={(v) => setContent((c) => ({ ...c, hero_subtitle: v }))} placeholder="Здесь живут мои стихи…" />
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Фото автора (правая половина экрана)</label>
@@ -480,11 +481,11 @@ export default function Admin() {
               <h2 className="font-serif text-2xl mb-2">Об авторе</h2>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Имя автора</label>
-                <Input value={content.author_name || ''} onChange={(e) => setContent((c) => ({ ...c, author_name: e.target.value }))} className="rounded-sm" placeholder="Имя Фамилия" />
+                <LocalInput value={content.author_name || ''} onCommit={(v) => setContent((c) => ({ ...c, author_name: v }))} placeholder="Имя Фамилия" />
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Биография</label>
-                <Textarea rows={5} value={content.author_bio || ''} onChange={(e) => setContent((c) => ({ ...c, author_bio: e.target.value }))} className="rounded-sm" placeholder="Расскажите о себе…" />
+                <LocalTextarea rows={5} value={content.author_bio || ''} onCommit={(v) => setContent((c) => ({ ...c, author_bio: v }))} placeholder="Расскажите о себе…" />
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Фото автора</label>
@@ -499,25 +500,25 @@ export default function Admin() {
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Подпись на фото (например: «с 2012 года»)</label>
-                <Input value={content.about_since || ''} onChange={(e) => setContent((c) => ({ ...c, about_since: e.target.value }))} className="rounded-sm" placeholder="с 2012 года" />
+                <LocalInput value={content.about_since || ''} onCommit={(v) => setContent((c) => ({ ...c, about_since: v }))} placeholder="с 2012 года" />
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-2 block">Статистика</label>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">Цифра 1</label>
-                    <Input value={content.stat1_num || ''} onChange={(e) => setContent((c) => ({ ...c, stat1_num: e.target.value }))} className="rounded-sm" placeholder="250+" />
-                    <Input value={content.stat1_label || ''} onChange={(e) => setContent((c) => ({ ...c, stat1_label: e.target.value }))} className="rounded-sm mt-1" placeholder="произведений" />
+                    <LocalInput value={content.stat1_num || ''} onCommit={(v) => setContent((c) => ({ ...c, stat1_num: v }))} placeholder="250+" />
+                    <LocalInput value={content.stat1_label || ''} onCommit={(v) => setContent((c) => ({ ...c, stat1_label: v }))} placeholder="произведений" className="rounded-sm mt-1" />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">Цифра 2</label>
-                    <Input value={content.stat2_num || ''} onChange={(e) => setContent((c) => ({ ...c, stat2_num: e.target.value }))} className="rounded-sm" placeholder="3" />
-                    <Input value={content.stat2_label || ''} onChange={(e) => setContent((c) => ({ ...c, stat2_label: e.target.value }))} className="rounded-sm mt-1" placeholder="книги" />
+                    <LocalInput value={content.stat2_num || ''} onCommit={(v) => setContent((c) => ({ ...c, stat2_num: v }))} placeholder="3" />
+                    <LocalInput value={content.stat2_label || ''} onCommit={(v) => setContent((c) => ({ ...c, stat2_label: v }))} placeholder="книги" className="rounded-sm mt-1" />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">Цифра 3</label>
-                    <Input value={content.stat3_num || ''} onChange={(e) => setContent((c) => ({ ...c, stat3_num: e.target.value }))} className="rounded-sm" placeholder="14 лет" />
-                    <Input value={content.stat3_label || ''} onChange={(e) => setContent((c) => ({ ...c, stat3_label: e.target.value }))} className="rounded-sm mt-1" placeholder="в литературе" />
+                    <LocalInput value={content.stat3_num || ''} onCommit={(v) => setContent((c) => ({ ...c, stat3_num: v }))} placeholder="14 лет" />
+                    <LocalInput value={content.stat3_label || ''} onCommit={(v) => setContent((c) => ({ ...c, stat3_label: v }))} placeholder="в литературе" className="rounded-sm mt-1" />
                   </div>
                 </div>
               </div>
@@ -532,11 +533,11 @@ export default function Admin() {
                   <div key={i} className="grid sm:grid-cols-2 gap-3 p-3 border border-border rounded-sm">
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">Название жанра</label>
-                      <Input value={g.key} onChange={(e) => setGenres((arr) => arr.map((x, j) => j === i ? { ...x, key: e.target.value } : x))} className="rounded-sm" />
+                      <LocalInput value={g.key} onCommit={(v) => setGenres((arr) => arr.map((x, j) => j === i ? { ...x, key: v } : x))} />
                     </div>
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">Описание под названием</label>
-                      <Input value={g.desc} onChange={(e) => setGenres((arr) => arr.map((x, j) => j === i ? { ...x, desc: e.target.value } : x))} className="rounded-sm" />
+                      <LocalInput value={g.desc} onCommit={(v) => setGenres((arr) => arr.map((x, j) => j === i ? { ...x, desc: v } : x))} />
                     </div>
                   </div>
                 ))}
@@ -549,20 +550,20 @@ export default function Admin() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-muted-foreground mb-1.5 block">Email</label>
-                  <Input value={content.contacts_email || ''} onChange={(e) => setContent((c) => ({ ...c, contacts_email: e.target.value }))} className="rounded-sm" placeholder="author@example.com" />
+                  <LocalInput value={content.contacts_email || ''} onCommit={(v) => setContent((c) => ({ ...c, contacts_email: v }))} placeholder="author@example.com" />
                 </div>
                 <div>
                   <label className="text-sm text-muted-foreground mb-1.5 block">Телефон</label>
-                  <Input value={content.contacts_phone || ''} onChange={(e) => setContent((c) => ({ ...c, contacts_phone: e.target.value }))} className="rounded-sm" placeholder="+7 900 000-00-00" />
+                  <LocalInput value={content.contacts_phone || ''} onCommit={(v) => setContent((c) => ({ ...c, contacts_phone: v }))} placeholder="+7 900 000-00-00" />
                 </div>
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Соцсети (ссылка или @username)</label>
-                <Input value={content.contacts_social || ''} onChange={(e) => setContent((c) => ({ ...c, contacts_social: e.target.value }))} className="rounded-sm" placeholder="https://t.me/username" />
+                <LocalInput value={content.contacts_social || ''} onCommit={(v) => setContent((c) => ({ ...c, contacts_social: v }))} placeholder="https://t.me/username" />
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Дополнительный текст</label>
-                <Textarea rows={3} value={content.contacts_text || ''} onChange={(e) => setContent((c) => ({ ...c, contacts_text: e.target.value }))} className="rounded-sm" placeholder="Любой дополнительный текст в разделе контактов…" />
+                <LocalTextarea rows={3} value={content.contacts_text || ''} onCommit={(v) => setContent((c) => ({ ...c, contacts_text: v }))} placeholder="Любой дополнительный текст в разделе контактов…" />
               </div>
             </section>
 
@@ -582,16 +583,16 @@ export default function Admin() {
                   <div className="grid sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">Дата</label>
-                      <Input value={a.date} onChange={(e) => setAnnouncements((arr) => arr.map((x, j) => j === i ? { ...x, date: e.target.value } : x))} className="rounded-sm" placeholder="20 июня" />
+                      <LocalInput value={a.date} onCommit={(v) => setAnnouncements((arr) => arr.map((x, j) => j === i ? { ...x, date: v } : x))} placeholder="20 июня" />
                     </div>
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">Тег</label>
-                      <Input value={a.tag} onChange={(e) => setAnnouncements((arr) => arr.map((x, j) => j === i ? { ...x, tag: e.target.value } : x))} className="rounded-sm" placeholder="Встреча / Новинка" />
+                      <LocalInput value={a.tag} onCommit={(v) => setAnnouncements((arr) => arr.map((x, j) => j === i ? { ...x, tag: v } : x))} placeholder="Встреча / Новинка" />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">Текст</label>
-                    <Textarea rows={2} value={a.text} onChange={(e) => setAnnouncements((arr) => arr.map((x, j) => j === i ? { ...x, text: e.target.value } : x))} className="rounded-sm resize-none" />
+                    <LocalTextarea rows={2} value={a.text} onCommit={(v) => setAnnouncements((arr) => arr.map((x, j) => j === i ? { ...x, text: v } : x))} />
                   </div>
                 </div>
               ))}
@@ -608,7 +609,7 @@ export default function Admin() {
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Текст / пояснение к разделу</label>
-                <Textarea rows={3} value={content.books_desc || ''} onChange={(e) => setContent((c) => ({ ...c, books_desc: e.target.value }))} className="rounded-sm resize-none" placeholder="Напишите что-нибудь о своих книгах…" />
+                <LocalTextarea rows={3} value={content.books_desc || ''} onCommit={(v) => setContent((c) => ({ ...c, books_desc: v }))} placeholder="Напишите что-нибудь о своих книгах…" />
               </div>
               {books.map((b, i) => (
                 <div key={i} className="border border-border rounded-sm p-4 space-y-3 relative">
@@ -618,24 +619,24 @@ export default function Admin() {
                   <div className="grid sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">Название</label>
-                      <Input value={b.title} onChange={(e) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} className="rounded-sm" placeholder="Название книги" />
+                      <LocalInput value={b.title} onCommit={(v) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, title: v } : x))} placeholder="Название книги" />
                     </div>
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">Год</label>
-                      <Input value={b.year} onChange={(e) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, year: e.target.value } : x))} className="rounded-sm" placeholder="2024" />
+                      <LocalInput value={b.year} onCommit={(v) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, year: v } : x))} placeholder="2024" />
                     </div>
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">Тип</label>
-                      <Input value={b.type} onChange={(e) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, type: e.target.value } : x))} className="rounded-sm" placeholder="Сборник стихов" />
+                      <LocalInput value={b.type} onCommit={(v) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, type: v } : x))} placeholder="Сборник стихов" />
                     </div>
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">Статус</label>
-                      <Input value={b.status} onChange={(e) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, status: e.target.value } : x))} className="rounded-sm" placeholder="В продаже / Готовится" />
+                      <LocalInput value={b.status} onCommit={(v) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, status: v } : x))} placeholder="В продаже / Готовится" />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">Ссылка на покупку (необязательно)</label>
-                    <Input value={b.link} onChange={(e) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, link: e.target.value } : x))} className="rounded-sm" placeholder="https://…" />
+                    <LocalInput value={b.link} onCommit={(v) => setBooks((arr) => arr.map((x, j) => j === i ? { ...x, link: v } : x))} placeholder="https://…" />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground mb-1 block">Фото обложки</label>
