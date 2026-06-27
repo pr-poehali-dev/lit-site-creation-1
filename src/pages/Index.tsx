@@ -437,7 +437,7 @@ export default function Index() {
         </div>
         <div className="px-6">
           {gallery.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
               {gallery.map((item, i) => (
                 item.type === 'photo' ? (
                   <button
@@ -476,8 +476,8 @@ export default function Index() {
             >
               <Icon name="X" size={32} />
             </button>
-            <div onClick={(e) => e.stopPropagation()} className="max-w-5xl max-h-[90vh] flex flex-col items-center gap-3">
-              <img src={lightbox.url} alt={lightbox.caption} className="max-w-full max-h-[82vh] object-contain rounded-sm" />
+            <div onClick={(e) => e.stopPropagation()} className="w-full h-full flex flex-col items-center justify-center gap-3">
+              <img src={lightbox.url} alt={lightbox.caption} className="max-w-full max-h-screen w-auto h-auto object-contain" />
               {lightbox.caption && (
                 <p className="text-white/70 italic text-sm text-center">{lightbox.caption}</p>
               )}
