@@ -661,7 +661,7 @@ export default function Admin() {
               </div>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Описание раздела</label>
-                <Textarea rows={2} value={content.gallery_desc || ''} onChange={(e) => setContent((c) => ({ ...c, gallery_desc: e.target.value }))} className="rounded-sm resize-none" placeholder="Любимые фото и видео, вдохновляющие мою музу." />
+                <Textarea rows={3} value={content.gallery_desc || ''} onChange={(e) => setContent((c) => ({ ...c, gallery_desc: e.target.value }))} className="rounded-sm" placeholder="Любимые фото и видео, вдохновляющие мою музу." />
               </div>
               {gallery.map((item, i) => (
                 <div
