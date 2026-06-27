@@ -30,7 +30,11 @@ def handler(event: dict, context) -> dict:
         if method == 'GET':
             work_id = params.get('work_id')
             if not work_id:
-                return {'statusCode': 400, 'headers': cors(), 'body': json.dumps({'error': 'work_id обязателен'})}
+                # Возвращаем счётчики комментариев для всех произведений
+                cur.execute(f'SELECT work_id, COUNT(*) FROM {SCHEMA}.comments GROUP BY work_id')
+                rows = cur.fetchall()
+                counts = {str(r[0]): r[1] for r in rows}
+                return {'statusCode': 200, 'headers': cors(), 'body': json.dumps(counts, ensure_ascii=False)}
             cur.execute(
                 f'SELECT id, work_id, parent_id, author_name, body, is_author, created_at FROM {SCHEMA}.comments WHERE work_id = %s ORDER BY created_at ASC',
                 (work_id,)

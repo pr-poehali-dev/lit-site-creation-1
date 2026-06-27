@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 const WORKS_URL = 'https://functions.poehali.dev/97e50fe2-d8c6-47a8-86fc-bbb58aeb0192';
 const VISITS_URL = WORKS_URL + '?action=visit';
 const SUBSCRIBE_URL = 'https://functions.poehali.dev/8d276d34-4f3a-4d3d-bf15-b95bbcccce2a';
+const COMMENTS_URL = 'https://functions.poehali.dev/20b2c93c-b071-4d5c-854e-a1e7805084bf';
 
 interface Work {
   id: number;
@@ -65,6 +66,8 @@ export default function Index() {
   const [gallery, setGallery] = useState<{type:'photo'|'video';url:string;caption:string}[]>([]);
   const [subEmail, setSubEmail] = useState('');
   const [subStatus, setSubStatus] = useState<'idle'|'loading'|'ok'|'already'|'error'>('idle');
+  const [commentCounts, setCommentCounts] = useState<Record<string, number>>({});
+  const [lightbox, setLightbox] = useState<{url: string; caption: string} | null>(null);
 
   useEffect(() => {
     if (!localStorage.getItem('admin_token')) {
@@ -74,6 +77,10 @@ export default function Index() {
       .then((r) => r.json())
       .then((data: Work[]) => setWorks(data.filter((w) => w.published)))
       .finally(() => setWorksLoading(false));
+    fetch(COMMENTS_URL)
+      .then((r) => r.json())
+      .then((data: Record<string, number>) => setCommentCounts(data))
+      .catch(() => {});
     fetch(CONTENT_URL)
       .then((r) => r.json())
       .then((data) => {
@@ -346,7 +353,11 @@ export default function Index() {
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-accent uppercase tracking-widest text-xs">{w.genre}</span>
                 <span className="text-muted-foreground text-xs">{new Date(w.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-                {w.read_time && <span className="text-muted-foreground text-xs ml-auto flex items-center gap-1"><Icon name="Clock" size={12} />{w.read_time}</span>}
+                <span className="text-muted-foreground text-xs flex items-center gap-1 ml-auto">
+                  <Icon name="MessageCircle" size={12} />
+                  {commentCounts[String(w.id)] || 0}
+                </span>
+                {w.read_time && <span className="text-muted-foreground text-xs flex items-center gap-1"><Icon name="Clock" size={12} />{w.read_time}</span>}
               </div>
               <h3 className="font-serif text-xl sm:text-2xl mb-2 group-hover:text-accent transition-colors">{w.title}</h3>
               <p className="text-muted-foreground leading-relaxed text-sm">
@@ -426,33 +437,53 @@ export default function Index() {
         </div>
         <div className="px-6">
           {gallery.length > 0 ? (
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
               {gallery.map((item, i) => (
-                <div key={i} className="group relative rounded-sm overflow-hidden border border-primary-foreground/20">
-                  {item.type === 'photo' ? (
-                    <img src={item.url} alt={item.caption} className="w-full object-cover" />
-                  ) : (
-                    <div className="aspect-video">
-                      <iframe
-                        src={item.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')}
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    </div>
-                  )}
-                  {item.caption && (
-                    <div className="bg-primary-foreground/10 text-primary-foreground/80 text-sm px-4 py-2.5 italic">
-                      {item.caption}
-                    </div>
-                  )}
-                </div>
+                item.type === 'photo' ? (
+                  <button
+                    key={i}
+                    onClick={() => setLightbox({ url: item.url, caption: item.caption })}
+                    className="group relative aspect-square overflow-hidden rounded-sm border border-primary-foreground/20 hover:border-accent transition-colors"
+                  >
+                    <img src={item.url} alt={item.caption} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
+                  </button>
+                ) : (
+                  <div key={i} className="col-span-2 row-span-2 aspect-video rounded-sm overflow-hidden border border-primary-foreground/20">
+                    <iframe
+                      src={item.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                )
               ))}
             </div>
           ) : (
             <p className="text-primary-foreground/50 italic px-6">Фото и видео появятся здесь.</p>
           )}
         </div>
+
+        {/* LIGHTBOX */}
+        {lightbox && (
+          <div
+            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+            onClick={() => setLightbox(null)}
+          >
+            <button
+              className="absolute top-4 right-4 text-white/80 hover:text-white"
+              onClick={() => setLightbox(null)}
+            >
+              <Icon name="X" size={32} />
+            </button>
+            <div onClick={(e) => e.stopPropagation()} className="max-w-5xl max-h-[90vh] flex flex-col items-center gap-3">
+              <img src={lightbox.url} alt={lightbox.caption} className="max-w-full max-h-[82vh] object-contain rounded-sm" />
+              {lightbox.caption && (
+                <p className="text-white/70 italic text-sm text-center">{lightbox.caption}</p>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ABOUT */}
