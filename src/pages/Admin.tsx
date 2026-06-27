@@ -11,6 +11,21 @@ const UPLOAD_URL = WORKS_URL + '?action=upload';
 
 const GENRES = ['Стихи', 'Рассказ', 'Фантазия', 'Эссе', 'Статьи', 'Разное'];
 
+function LocalTextarea({ value, onCommit, placeholder, rows = 3 }: { value: string; onCommit: (v: string) => void; placeholder?: string; rows?: number }) {
+  const [local, setLocal] = useState(value);
+  useEffect(() => { setLocal(value); }, [value]);
+  return (
+    <Textarea
+      rows={rows}
+      value={local}
+      onChange={(e) => setLocal(e.target.value)}
+      onBlur={() => onCommit(local)}
+      className="rounded-sm"
+      placeholder={placeholder}
+    />
+  );
+}
+
 interface Work {
   id: number;
   genre: string;
@@ -648,7 +663,7 @@ export default function Admin() {
               <h2 className="font-serif text-2xl mb-2">Галерея — описание</h2>
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">Описание раздела</label>
-                <Textarea rows={3} key={`gd_${!!content.gallery_desc}`} defaultValue={content.gallery_desc || ''} onBlur={(e) => setContent((c) => ({ ...c, gallery_desc: e.target.value }))} className="rounded-sm" placeholder="Любимые фото и видео, вдохновляющие мою музу." />
+                <LocalTextarea value={content.gallery_desc || ''} onCommit={(v) => setContent((c) => ({ ...c, gallery_desc: v }))} placeholder="Любимые фото и видео, вдохновляющие мою музу." />
               </div>
             </section>
 
