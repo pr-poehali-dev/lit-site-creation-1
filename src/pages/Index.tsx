@@ -652,7 +652,7 @@ export default function Index() {
       <footer className="border-t border-border py-10">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p className="font-serif italic text-lg">{siteContent.footer_title || 'Чернила & тишина'}</p>
-          <p className="w-48 text-left whitespace-pre-line">© {new Date().getFullYear()} · {siteContent.footer_rights || 'Все права на тексты принадлежат автору'}</p>
+          <p className="w-1/2 text-left whitespace-pre-line">© {new Date().getFullYear()} · {siteContent.footer_rights || 'Все права на тексты принадлежат автору'}</p>
           <a href="https://www.liveinternet.ru/stat/notstandard-project.ru/" target="_blank" rel="noopener noreferrer">
             <img
               src="https://counter.yadro.ru/hit;notstandard-project.ru?t52"
