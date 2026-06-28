@@ -565,6 +565,19 @@ export default function Admin() {
               </div>
             </section>
 
+            {/* Подвал сайта */}
+            <section className="bg-card border border-border rounded-sm p-6 space-y-4">
+              <h2 className="font-serif text-2xl mb-2">Подвал сайта</h2>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Название (курсивная надпись слева)</label>
+                <RefInput defaultValue={content.footer_title || ''} field="footer_title" store={contentRef} placeholder="Чернила & тишина" />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Текст об авторских правах</label>
+                <RefTextarea rows={6} defaultValue={content.footer_rights || ''} field="footer_rights" store={contentRef} placeholder="Все права на тексты принадлежат автору" />
+              </div>
+            </section>
+
             {/* Объявления */}
             <section className="bg-card border border-border rounded-sm p-6 space-y-4">
               <div className="flex items-center justify-between">
