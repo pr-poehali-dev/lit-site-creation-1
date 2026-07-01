@@ -507,7 +507,7 @@ export default function Index() {
           <div>
             <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Об авторе</p>
             <h2 className="font-serif text-4xl sm:text-5xl mb-8">Я пишу, чтобы<br /><span className="italic">расслышать мир</span></h2>
-            <p className="drop-cap text-lg text-muted-foreground leading-relaxed mb-8 whitespace-pre-line">
+            <p className="drop-cap text-muted-foreground leading-relaxed mb-8 whitespace-pre-line">
               {siteContent.author_bio || 'Расскажите о себе в разделе «Настройки сайта».'}
             </p>
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-4">Статистика</p>
