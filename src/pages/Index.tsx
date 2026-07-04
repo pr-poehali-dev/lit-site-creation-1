@@ -145,7 +145,7 @@ export default function Index() {
         {/* Пользовательский фон */}
         {siteContent.hero_bg && (
           <div className="absolute inset-0">
-            <img src={siteContent.hero_bg} alt="" fetchPriority="high" decoding="async" className="w-full h-full object-cover opacity-15" />
+            <img src={siteContent.hero_bg} alt="" fetchpriority="high" decoding="async" className="w-full h-full object-cover opacity-15" />
           </div>
         )}
 
@@ -272,7 +272,7 @@ export default function Index() {
                 <img
                   src={siteContent.hero_photo || siteContent.author_photo}
                   alt="Автор"
-                  fetchPriority="high"
+                  fetchpriority="high"
                   decoding="async"
                   className="absolute inset-0 w-full h-full object-cover object-top"
                 />
