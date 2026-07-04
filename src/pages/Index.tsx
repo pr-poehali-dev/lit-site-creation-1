@@ -145,7 +145,7 @@ export default function Index() {
         {/* Пользовательский фон */}
         {siteContent.hero_bg && (
           <div className="absolute inset-0">
-            <img src={siteContent.hero_bg} alt="" className="w-full h-full object-cover opacity-15" />
+            <img src={siteContent.hero_bg} alt="" fetchPriority="high" decoding="async" className="w-full h-full object-cover opacity-15" />
           </div>
         )}
 
@@ -272,6 +272,8 @@ export default function Index() {
                 <img
                   src={siteContent.hero_photo || siteContent.author_photo}
                   alt="Автор"
+                  fetchPriority="high"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover object-top"
                 />
                 <div className="absolute inset-0" style={{background: 'linear-gradient(to right, hsl(25 22% 16%), hsl(25 22% 16% / 0.1) 50%, transparent)'}} />
@@ -392,7 +394,7 @@ export default function Index() {
               <div key={i} className="group relative bg-primary-foreground/5 border border-primary-foreground/15 rounded-sm hover:bg-primary-foreground/10 transition-colors overflow-hidden">
                 {b.cover ? (
                   <div className="aspect-[3/4] overflow-hidden">
-                    <img src={b.cover} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={b.cover} alt={b.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
                 ) : (
                   <div className="flex items-center justify-center aspect-[3/4] bg-primary-foreground/5">
@@ -450,7 +452,7 @@ export default function Index() {
                     onClick={() => setLightbox({ url: item.url, caption: item.caption })}
                     className="group relative aspect-square overflow-hidden rounded-sm border border-primary-foreground/20 hover:border-accent transition-colors"
                   >
-                    <img src={item.url} alt={item.caption} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
+                    <img src={item.url} alt={item.caption} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
                   </button>
                 ) : (
                   <div key={i} className="col-span-2 row-span-2 aspect-video rounded-sm overflow-hidden border border-primary-foreground/20">
@@ -496,7 +498,7 @@ export default function Index() {
         <div className="max-w-[1600px] mx-auto px-6 grid md:grid-cols-2 gap-16 items-start">
           <div className="relative">
             <div className="aspect-[4/5] rounded-sm overflow-hidden border border-border">
-              <img src={siteContent.author_photo || HERO_IMG} alt="Автор за работой" className="w-full h-full object-cover" />
+              <img src={siteContent.author_photo || HERO_IMG} alt="Автор за работой" loading="lazy" decoding="async" className="w-full h-full object-cover" />
             </div>
             {(siteContent.about_since) && (
               <div className="absolute -bottom-5 -right-5 bg-accent text-accent-foreground font-serif italic text-xl px-6 py-3 rounded-sm shadow-lg">
