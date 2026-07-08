@@ -5,6 +5,7 @@ import uuid
 import smtplib
 import psycopg2
 import boto3
+from concurrent.futures import ThreadPoolExecutor
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -182,25 +183,30 @@ def handler(event: dict, context) -> dict:
                           aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
                           aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'])
 
-        combined = bytearray()
-        chunk_keys = []
+        chunk_keys = [f'audio_chunks/{upload_id}/{i:06d}' for i in range(total)]
+
+        def fetch_chunk(key):
+            obj = s3.get_object(Bucket='files', Key=key)
+            return obj['Body'].read()
+
         try:
-            for i in range(total):
-                key = f'audio_chunks/{upload_id}/{i:06d}'
-                chunk_keys.append(key)
-                obj = s3.get_object(Bucket='files', Key=key)
-                combined.extend(obj['Body'].read())
+            with ThreadPoolExecutor(max_workers=16) as executor:
+                parts = list(executor.map(fetch_chunk, chunk_keys))
         except Exception:
             return {'statusCode': 400, 'headers': cors_headers(), 'body': json.dumps({'error': 'Не все части файла были загружены'}, ensure_ascii=False)}
 
+        combined = b''.join(parts)
         final_key = f'audio/{uuid.uuid4()}.{ext}'
-        s3.put_object(Bucket='files', Key=final_key, Body=bytes(combined), ContentType=content_type)
+        s3.put_object(Bucket='files', Key=final_key, Body=combined, ContentType=content_type)
 
-        for key in chunk_keys:
+        def delete_chunk(key):
             try:
                 s3.delete_object(Bucket='files', Key=key)
             except Exception:
                 pass
+
+        with ThreadPoolExecutor(max_workers=16) as executor:
+            list(executor.map(delete_chunk, chunk_keys))
 
         cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{final_key}"
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'url': cdn_url})}
