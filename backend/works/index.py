@@ -138,15 +138,38 @@ def handler(event: dict, context) -> dict:
         cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'url': cdn_url})}
 
-    # --- ССЫЛКА ДЛЯ ПРЯМОЙ ЗАГРУЗКИ АУДИО: POST ?action=audio_upload_url (только автор) ---
-    # Возвращает временную ссылку для загрузки файла напрямую в хранилище,
-    # минуя ограничение на размер тела запроса облачной функции.
-    if action == 'audio_upload_url' and method == 'POST':
+    # --- ЗАГРУЗКА АУДИО ПО ЧАСТЯМ: POST ?action=audio_chunk (только автор) ---
+    # Большой файл режется на маленькие куски на фронтенде, каждый кусок
+    # укладывается в лимит размера запроса и временно кладётся в хранилище.
+    if action == 'audio_chunk' and method == 'POST':
         token = headers.get('x-auth-token', '')
         if token != os.environ.get('ADMIN_PASSWORD', ''):
             return {'statusCode': 401, 'headers': cors_headers(), 'body': json.dumps({'error': 'Нет доступа'})}
         body = json.loads(event.get('body') or '{}')
+        upload_id = body.get('upload_id', '')
+        index = body.get('index')
+        chunk = body.get('chunk', '')
+        if not upload_id or index is None or not chunk:
+            return {'statusCode': 400, 'headers': cors_headers(), 'body': json.dumps({'error': 'Некорректные данные части файла'}, ensure_ascii=False)}
+        chunk_data = base64.b64decode(chunk)
+        s3 = boto3.client('s3', endpoint_url='https://bucket.poehali.dev',
+                          aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                          aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'])
+        s3.put_object(Bucket='files', Key=f'audio_chunks/{upload_id}/{index:06d}', Body=chunk_data)
+        return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'ok': True})}
+
+    # --- СБОРКА АУДИО ИЗ ЧАСТЕЙ: POST ?action=audio_finalize (только автор) ---
+    if action == 'audio_finalize' and method == 'POST':
+        token = headers.get('x-auth-token', '')
+        if token != os.environ.get('ADMIN_PASSWORD', ''):
+            return {'statusCode': 401, 'headers': cors_headers(), 'body': json.dumps({'error': 'Нет доступа'})}
+        body = json.loads(event.get('body') or '{}')
+        upload_id = body.get('upload_id', '')
+        total = body.get('total', 0)
         filename = (body.get('filename') or 'audio.mp3').lower()
+        if not upload_id or not total:
+            return {'statusCode': 400, 'headers': cors_headers(), 'body': json.dumps({'error': 'Некорректные данные'}, ensure_ascii=False)}
+
         ext_map = {'.mp3': 'mp3', '.wav': 'wav', '.ogg': 'ogg', '.m4a': 'm4a', '.aac': 'aac'}
         ext = 'mp3'
         for suffix, mapped in ext_map.items():
@@ -154,18 +177,33 @@ def handler(event: dict, context) -> dict:
                 ext = mapped
                 break
         content_type = f'audio/{"mpeg" if ext == "mp3" else ext}'
-        key = f'audio/{uuid.uuid4()}.{ext}'
 
         s3 = boto3.client('s3', endpoint_url='https://bucket.poehali.dev',
                           aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
                           aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'])
-        upload_url = s3.generate_presigned_url(
-            'put_object',
-            Params={'Bucket': 'files', 'Key': key, 'ContentType': content_type},
-            ExpiresIn=600,
-        )
-        cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
-        return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'upload_url': upload_url, 'content_type': content_type, 'url': cdn_url})}
+
+        combined = bytearray()
+        chunk_keys = []
+        try:
+            for i in range(total):
+                key = f'audio_chunks/{upload_id}/{i:06d}'
+                chunk_keys.append(key)
+                obj = s3.get_object(Bucket='files', Key=key)
+                combined.extend(obj['Body'].read())
+        except Exception:
+            return {'statusCode': 400, 'headers': cors_headers(), 'body': json.dumps({'error': 'Не все части файла были загружены'}, ensure_ascii=False)}
+
+        final_key = f'audio/{uuid.uuid4()}.{ext}'
+        s3.put_object(Bucket='files', Key=final_key, Body=bytes(combined), ContentType=content_type)
+
+        for key in chunk_keys:
+            try:
+                s3.delete_object(Bucket='files', Key=key)
+            except Exception:
+                pass
+
+        cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{final_key}"
+        return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'url': cdn_url})}
 
     # --- КОНТЕНТ: GET ?action=content ---
     if action == 'content' and method == 'GET':
