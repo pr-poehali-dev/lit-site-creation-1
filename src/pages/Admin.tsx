@@ -62,6 +62,7 @@ export default function Admin() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [visits, setVisits] = useState<{ today: number; total: number } | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [audioUploading, setAudioUploading] = useState(false);
   const dragItem = useRef<number | null>(null);
   const dragOver = useRef<number | null>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
@@ -321,6 +322,38 @@ export default function Admin() {
     if (data.url) setForm((f) => ({ ...f, image_url: data.url }));
     setUploading(false);
     setUploadProgress(null);
+  };
+
+  const readFileAsDataUrl = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  const uploadAudio = async (file: File) => {
+    if (file.size > 25 * 1024 * 1024) {
+      alert('Файл слишком большой (максимум 25 МБ)');
+      return;
+    }
+    setAudioUploading(true);
+    setUploadProgress('Читаю файл…');
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setUploadProgress('Загружаю на сервер…');
+      const res = await fetch(UPLOAD_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+        body: JSON.stringify({ file: dataUrl, kind: 'audio' }),
+      });
+      const data = await res.json();
+      if (data.url) setForm((f) => ({ ...f, audio_url: data.url }));
+      else if (data.error) alert(data.error);
+    } finally {
+      setAudioUploading(false);
+      setUploadProgress(null);
+    }
   };
 
   const save = async () => {
@@ -973,13 +1006,33 @@ export default function Admin() {
                 )}
               </div>
               <div>
-                <label className="text-sm text-muted-foreground mb-1.5 block">Ссылка на аудио (необязательно)</label>
+                <label className="text-sm text-muted-foreground mb-1.5 block">Аудио (необязательно)</label>
+                <div className="flex items-center gap-3 mb-2">
+                  <label className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded-sm border border-border bg-background text-sm hover:bg-muted/40 transition-colors ${audioUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <Icon name={audioUploading ? 'Loader' : 'Music'} size={16} className={audioUploading ? 'animate-spin' : ''} />
+                    {audioUploading ? 'Загружаю…' : 'Выбрать файл с ПК'}
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      className="hidden"
+                      onChange={(e) => e.target.files?.[0] && uploadAudio(e.target.files[0])}
+                    />
+                  </label>
+                  {form.audio_url && (
+                    <button onClick={() => setForm((f) => ({ ...f, audio_url: '' }))} className="text-xs text-muted-foreground hover:text-destructive transition-colors">
+                      Удалить
+                    </button>
+                  )}
+                </div>
                 <Input
                   value={form.audio_url}
                   onChange={(e) => setForm({ ...form, audio_url: e.target.value })}
-                  placeholder="https://…"
+                  placeholder="или вставьте ссылку https://…"
                   className="rounded-sm"
                 />
+                {form.audio_url && (
+                  <audio controls src={form.audio_url} className="mt-3 w-full h-10" />
+                )}
               </div>
               <label className="flex items-center gap-3 cursor-pointer select-none">
                 <input
