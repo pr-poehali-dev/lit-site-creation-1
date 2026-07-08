@@ -324,32 +324,35 @@ export default function Admin() {
     setUploadProgress(null);
   };
 
-  const readFileAsDataUrl = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
   const uploadAudio = async (file: File) => {
-    if (file.size > 25 * 1024 * 1024) {
-      alert('Файл слишком большой (максимум 25 МБ)');
+    if (file.size > 100 * 1024 * 1024) {
+      alert('Файл слишком большой (максимум 100 МБ)');
       return;
     }
     setAudioUploading(true);
-    setUploadProgress('Читаю файл…');
+    setUploadProgress('Готовлю загрузку…');
     try {
-      const dataUrl = await readFileAsDataUrl(file);
-      setUploadProgress('Загружаю на сервер…');
-      const res = await fetch(UPLOAD_URL, {
+      const linkRes = await fetch(WORKS_URL + '?action=audio_upload_url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
-        body: JSON.stringify({ file: dataUrl, kind: 'audio' }),
+        body: JSON.stringify({ filename: file.name }),
       });
-      const data = await res.json();
-      if (data.url) setForm((f) => ({ ...f, audio_url: data.url }));
-      else if (data.error) alert(data.error);
+      const linkData = await linkRes.json();
+      if (!linkData.upload_url) {
+        alert(linkData.error || 'Не удалось начать загрузку');
+        return;
+      }
+      setUploadProgress('Загружаю файл…');
+      const putRes = await fetch(linkData.upload_url, {
+        method: 'PUT',
+        headers: { 'Content-Type': linkData.content_type },
+        body: file,
+      });
+      if (!putRes.ok) {
+        alert('Не удалось загрузить файл');
+        return;
+      }
+      setForm((f) => ({ ...f, audio_url: linkData.url }));
     } finally {
       setAudioUploading(false);
       setUploadProgress(null);

@@ -112,43 +112,24 @@ def handler(event: dict, context) -> dict:
             conn.close()
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'today': today, 'total': total})}
 
-    # --- ЗАГРУЗКА ИЛЛЮСТРАЦИИ/АУДИО: POST ?action=upload (только автор) ---
+    # --- ЗАГРУЗКА ИЛЛЮСТРАЦИИ: POST ?action=upload (только автор, маленькие файлы через base64) ---
     if action == 'upload' and method == 'POST':
         token = headers.get('x-auth-token', '')
         if token != os.environ.get('ADMIN_PASSWORD', ''):
             return {'statusCode': 401, 'headers': cors_headers(), 'body': json.dumps({'error': 'Нет доступа'})}
         body = json.loads(event.get('body') or '{}')
         data_url = body.get('file', '')
-        file_kind = body.get('kind', 'image')
         if not data_url:
             return {'statusCode': 400, 'headers': cors_headers(), 'body': json.dumps({'error': 'Файл не передан'})}
 
-        if file_kind == 'audio':
-            AUDIO_EXT_MAP = {
-                'mpeg': 'mp3', 'mp3': 'mp3', 'wav': 'wav', 'x-wav': 'wav',
-                'ogg': 'ogg', 'mp4': 'm4a', 'x-m4a': 'm4a', 'aac': 'aac',
-            }
-            if ',' in data_url:
-                header, encoded = data_url.split(',', 1)
-                subtype = header.split('/')[-1].split(';')[0] if '/' in header else 'mpeg'
-                ext = AUDIO_EXT_MAP.get(subtype, 'mp3')
-            else:
-                encoded, ext = data_url, 'mp3'
-            file_data = base64.b64decode(encoded)
-            max_bytes = 25 * 1024 * 1024
-            if len(file_data) > max_bytes:
-                return {'statusCode': 400, 'headers': cors_headers(), 'body': json.dumps({'error': 'Файл слишком большой (максимум 25 МБ)'}, ensure_ascii=False)}
-            key = f'audio/{uuid.uuid4()}.{ext}'
-            content_type = f'audio/{"mpeg" if ext == "mp3" else ext}'
+        if ',' in data_url:
+            header, encoded = data_url.split(',', 1)
+            ext = 'png' if 'png' in header else 'gif' if 'gif' in header else 'webp' if 'webp' in header else 'jpg'
         else:
-            if ',' in data_url:
-                header, encoded = data_url.split(',', 1)
-                ext = 'png' if 'png' in header else 'gif' if 'gif' in header else 'webp' if 'webp' in header else 'jpg'
-            else:
-                encoded, ext = data_url, 'jpg'
-            file_data = base64.b64decode(encoded)
-            key = f'illustrations/{uuid.uuid4()}.{ext}'
-            content_type = f'image/{ext}' if ext != 'jpg' else 'image/jpeg'
+            encoded, ext = data_url, 'jpg'
+        file_data = base64.b64decode(encoded)
+        key = f'illustrations/{uuid.uuid4()}.{ext}'
+        content_type = f'image/{ext}' if ext != 'jpg' else 'image/jpeg'
 
         s3 = boto3.client('s3', endpoint_url='https://bucket.poehali.dev',
                           aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
@@ -156,6 +137,35 @@ def handler(event: dict, context) -> dict:
         s3.put_object(Bucket='files', Key=key, Body=file_data, ContentType=content_type)
         cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'url': cdn_url})}
+
+    # --- ССЫЛКА ДЛЯ ПРЯМОЙ ЗАГРУЗКИ АУДИО: POST ?action=audio_upload_url (только автор) ---
+    # Возвращает временную ссылку для загрузки файла напрямую в хранилище,
+    # минуя ограничение на размер тела запроса облачной функции.
+    if action == 'audio_upload_url' and method == 'POST':
+        token = headers.get('x-auth-token', '')
+        if token != os.environ.get('ADMIN_PASSWORD', ''):
+            return {'statusCode': 401, 'headers': cors_headers(), 'body': json.dumps({'error': 'Нет доступа'})}
+        body = json.loads(event.get('body') or '{}')
+        filename = (body.get('filename') or 'audio.mp3').lower()
+        ext_map = {'.mp3': 'mp3', '.wav': 'wav', '.ogg': 'ogg', '.m4a': 'm4a', '.aac': 'aac'}
+        ext = 'mp3'
+        for suffix, mapped in ext_map.items():
+            if filename.endswith(suffix):
+                ext = mapped
+                break
+        content_type = f'audio/{"mpeg" if ext == "mp3" else ext}'
+        key = f'audio/{uuid.uuid4()}.{ext}'
+
+        s3 = boto3.client('s3', endpoint_url='https://bucket.poehali.dev',
+                          aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                          aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'])
+        upload_url = s3.generate_presigned_url(
+            'put_object',
+            Params={'Bucket': 'files', 'Key': key, 'ContentType': content_type},
+            ExpiresIn=600,
+        )
+        cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
+        return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'upload_url': upload_url, 'content_type': content_type, 'url': cdn_url})}
 
     # --- КОНТЕНТ: GET ?action=content ---
     if action == 'content' and method == 'GET':
