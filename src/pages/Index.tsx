@@ -74,17 +74,10 @@ export default function Index() {
     if (!localStorage.getItem('admin_token')) {
       fetch(VISITS_URL, { method: 'POST' }).catch(() => {});
     }
-    fetch(WORKS_URL)
+    fetch(WORKS_URL + '?action=home')
       .then((r) => r.json())
-      .then((data: Work[]) => setWorks(data.filter((w) => w.published)))
-      .finally(() => setWorksLoading(false));
-    fetch(COMMENTS_URL)
-      .then((r) => r.json())
-      .then((data: Record<string, number>) => setCommentCounts(data))
-      .catch(() => {});
-    fetch(CONTENT_URL)
-      .then((r) => r.json())
-      .then((data) => {
+      .then(({ works, content: data }: { works: Work[]; content: Record<string, string> }) => {
+        setWorks(works.filter((w) => w.published));
         setSiteContent(data);
         try { setBooks(JSON.parse(data.books || '[]')); } catch { setBooks([]); }
         try { setAnnouncements(JSON.parse(data.announcements || '[]')); } catch { setAnnouncements([]); }
@@ -94,7 +87,12 @@ export default function Index() {
           const saved = JSON.parse(data.genres || '[]');
           if (saved.length === 6) setGenres(saved);
         } catch { /* используем дефолт */ }
-      });
+      })
+      .finally(() => setWorksLoading(false));
+    fetch(COMMENTS_URL)
+      .then((r) => r.json())
+      .then((data: Record<string, number>) => setCommentCounts(data))
+      .catch(() => {});
   }, []);
 
   const genreCount = (key: string) => {

@@ -4,8 +4,13 @@ import psycopg2
 
 SCHEMA = os.environ['MAIN_DB_SCHEMA']
 
+_conn = None
+
 def get_conn():
-    return psycopg2.connect(os.environ['DATABASE_URL'])
+    global _conn
+    if _conn is None or _conn.closed:
+        _conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    return _conn
 
 def cors():
     return {
@@ -81,4 +86,3 @@ def handler(event: dict, context) -> dict:
 
     finally:
         cur.close()
-        conn.close()

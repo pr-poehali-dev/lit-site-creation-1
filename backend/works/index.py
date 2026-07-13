@@ -34,8 +34,13 @@ def send_contact_email(name: str, reply_email: str, message: str):
 
 SCHEMA = os.environ['MAIN_DB_SCHEMA']
 
+_conn = None
+
 def get_conn():
-    return psycopg2.connect(os.environ['DATABASE_URL'])
+    global _conn
+    if _conn is None or _conn.closed:
+        _conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    return _conn
 
 def cors_headers():
     return {
@@ -78,7 +83,6 @@ def handler(event: dict, context) -> dict:
             conn.commit()
         finally:
             cur.close()
-            conn.close()
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'ok': True})}
 
     # --- СЧЁТЧИК: DELETE ?action=visits (только автор, сброс) ---
@@ -93,7 +97,6 @@ def handler(event: dict, context) -> dict:
             conn.commit()
         finally:
             cur.close()
-            conn.close()
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'ok': True})}
 
     # --- СЧЁТЧИК: GET ?action=visits (только автор) ---
@@ -110,7 +113,6 @@ def handler(event: dict, context) -> dict:
             total = cur.fetchone()[0]
         finally:
             cur.close()
-            conn.close()
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'today': today, 'total': total})}
 
     # --- ЗАГРУЗКА ИЛЛЮСТРАЦИИ: POST ?action=upload (только автор, маленькие файлы через base64) ---
@@ -221,8 +223,31 @@ def handler(event: dict, context) -> dict:
             result = {r[0]: r[1] for r in rows}
         finally:
             cur.close()
-            conn.close()
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps(result, ensure_ascii=False)}
+
+    # --- ГЛАВНАЯ СТРАНИЦА ОДНИМ ЗАПРОСОМ: GET ?action=home ---
+    # Отдаёт произведения + тексты сайта за один вызов вместо двух отдельных,
+    # чтобы сократить число обращений к функции при загрузке сайта.
+    if action == 'home' and method == 'GET':
+        conn = get_conn()
+        cur = conn.cursor()
+        try:
+            cur.execute(
+                f'SELECT id, genre, title, excerpt, body, audio_url, read_time, created_at, published, image_url '
+                f'FROM {SCHEMA}.works WHERE published = true ORDER BY sort_order ASC, created_at DESC'
+            )
+            keys = ['id', 'genre', 'title', 'excerpt', 'body', 'audio_url', 'read_time', 'created_at', 'published', 'image_url']
+            works = []
+            for row in cur.fetchall():
+                w = dict(zip(keys, row))
+                w['created_at'] = w['created_at'].isoformat()
+                works.append(w)
+
+            cur.execute(f'SELECT key, value FROM {SCHEMA}.site_content')
+            content = {r[0]: r[1] for r in cur.fetchall()}
+        finally:
+            cur.close()
+        return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'works': works, 'content': content}, ensure_ascii=False)}
 
     # --- КОНТЕНТ: POST ?action=content (только автор) ---
     if action == 'content' and method == 'POST':
@@ -241,7 +266,6 @@ def handler(event: dict, context) -> dict:
             conn.commit()
         finally:
             cur.close()
-            conn.close()
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'ok': True})}
 
     # --- ПОРЯДОК: POST ?action=reorder ---
@@ -259,7 +283,6 @@ def handler(event: dict, context) -> dict:
             conn.commit()
         finally:
             cur.close()
-            conn.close()
         return {'statusCode': 200, 'headers': cors_headers(), 'body': json.dumps({'ok': True})}
 
     # --- ПРОИЗВЕДЕНИЯ ---
@@ -344,4 +367,3 @@ def handler(event: dict, context) -> dict:
 
     finally:
         cur.close()
-        conn.close()
