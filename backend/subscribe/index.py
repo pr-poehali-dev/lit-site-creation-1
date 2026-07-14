@@ -20,7 +20,7 @@ def send_confirmation(to_email: str):
       <p style="font-size: 22px; font-style: italic;">Пространство <span style="color:#b45309;">&</span> слова</p>
       <p>Спасибо за подписку!</p>
       <p>Когда появится новое стихотворение, рассказ или книга — я пришлю весточку. Не чаще раза в месяц, обещаю.</p>
-      <p style="color: #888; font-size: 13px; margin-top: 32px;">— Алексей Ушаков<br>alexey-ushakov.ru</p>
+      <p style="color: #888; font-size: 13px; margin-top: 32px;">— Алексей Ушаков<br>alexey-ushakov.com</p>
     </div>
     """
     msg.attach(MIMEText(html, 'html'))

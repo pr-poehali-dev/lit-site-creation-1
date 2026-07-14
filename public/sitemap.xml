@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://alexey-ushakov.ru/</loc>
+    <loc>https://alexey-ushakov.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://alexey-ushakov.ru/#works</loc>
+    <loc>https://alexey-ushakov.com/#works</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://alexey-ushakov.ru/#books</loc>
+    <loc>https://alexey-ushakov.com/#books</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://alexey-ushakov.ru/#about</loc>
+    <loc>https://alexey-ushakov.com/#about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://alexey-ushakov.ru/#board</loc>
+    <loc>https://alexey-ushakov.com/#board</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

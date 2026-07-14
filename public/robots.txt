@@ -14,4 +14,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 
-Sitemap: https://alexey-ushakov.ru/sitemap.xml
+Sitemap: https://alexey-ushakov.com/sitemap.xml

@@ -24,7 +24,7 @@ def send_contact_email(name: str, reply_email: str, message: str):
       <p><b>Email для ответа:</b> {reply_email}</p>
       <hr style="border:none;border-top:1px solid #eee;margin:16px 0;">
       <p style="white-space:pre-wrap;">{message}</p>
-      <p style="color:#888;font-size:13px;margin-top:32px;">Отправлено с alexey-ushakov.ru</p>
+      <p style="color:#888;font-size:13px;margin-top:32px;">Отправлено с alexey-ushakov.com</p>
     </div>
     """
     msg.attach(MIMEText(html, 'html'))
