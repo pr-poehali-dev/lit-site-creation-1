@@ -53,12 +53,12 @@ def handler(event: dict, context) -> dict:
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cur = conn.cursor()
 
-    cur.execute(f"SELECT id FROM {SCHEMA}.subscribers WHERE email = '{email}'")
+    cur.execute(f"SELECT id FROM {SCHEMA}.subscribers WHERE email = %s", (email,))
     if cur.fetchone():
         conn.close()
         return {'statusCode': 200, 'headers': cors, 'body': json.dumps({'status': 'already_subscribed'})}
 
-    cur.execute(f"INSERT INTO {SCHEMA}.subscribers (email) VALUES ('{email}')")
+    cur.execute(f"INSERT INTO {SCHEMA}.subscribers (email) VALUES (%s)", (email,))
     conn.commit()
     conn.close()
 
