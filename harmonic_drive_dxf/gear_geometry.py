@@ -38,7 +38,7 @@ def tooth_flank_theta(m, z, alpha_deg=20.0, ha_coef=1.0, hf_coef=1.25,
         ra = rp - ha_coef * m
         rf = rp + hf_coef * m
 
-    half_angle_p = np.pi / (2 * z) + inv(alpha0)
+    half_angle_p = np.pi / (2 * z)
     inv_p = inv(alpha0)
 
     r_start = max(rb, min(rf, ra))
@@ -76,7 +76,7 @@ def tooth_polygon(m, z, alpha_deg=20.0, ha_coef=1.0, hf_coef=1.25, internal=Fals
 
     root_theta_end = thetas[0]
     root_pts_next = []
-    for a in np.linspace(root_theta_end, pitch_step - root_theta_end, root_arc_points)[1:-1]:
+    for a in np.linspace(root_theta_end, pitch_step - root_theta_end, root_arc_points)[1:]:
         root_pts_next.append((r_root * np.cos(a), r_root * np.sin(a)))
 
     poly = right + tip_pts + left
