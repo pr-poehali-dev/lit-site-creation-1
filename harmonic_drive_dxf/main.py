@@ -22,7 +22,6 @@
        - preview.png                  - картинка для быстрого просмотра без CAD
 """
 import os
-import math
 
 from gear_geometry import full_gear_polygon, circle_points
 from deformation import wave_amplitude_from_teeth, deform_polygon, wave_generator_cam_profile
@@ -202,7 +201,7 @@ def export_all():
     return fs, fs_def, cs, wg
 
 
-def make_png_preview(fs, fs_def, cs, wg):
+def make_png_preview(flexspline_data, flexspline_deformed_data, circular_spline_data, wave_generator_data):
     """Дополнительно сохраняет preview.png для быстрого визуального контроля
     (matplotlib), без необходимости открывать DXF в CAD-программе."""
     try:
@@ -216,10 +215,10 @@ def make_png_preview(fs, fs_def, cs, wg):
     fig, axes = plt.subplots(1, 2, figsize=(14, 7))
 
     ax = axes[0]
-    x = [p[0] for p in fs["teeth"]] + [fs["teeth"][0][0]]
-    y = [p[1] for p in fs["teeth"]] + [fs["teeth"][0][1]]
+    x = [p[0] for p in flexspline_data["teeth"]] + [flexspline_data["teeth"][0][0]]
+    y = [p[1] for p in flexspline_data["teeth"]] + [flexspline_data["teeth"][0][1]]
     ax.plot(x, y, "b-", lw=0.8, label="Flexspline (cylindrical)")
-    bore = circle_points(fs["inner_bore_radius"])
+    bore = circle_points(flexspline_data["inner_bore_radius"])
     bx = [p[0] for p in bore] + [bore[0][0]]
     by = [p[1] for p in bore] + [bore[0][1]]
     ax.plot(bx, by, "b--", lw=0.8)
@@ -229,23 +228,23 @@ def make_png_preview(fs, fs_def, cs, wg):
     ax.grid(True)
 
     ax = axes[1]
-    xc = [p[0] for p in cs["teeth"]] + [cs["teeth"][0][0]]
-    yc = [p[1] for p in cs["teeth"]] + [cs["teeth"][0][1]]
+    xc = [p[0] for p in circular_spline_data["teeth"]] + [circular_spline_data["teeth"][0][0]]
+    yc = [p[1] for p in circular_spline_data["teeth"]] + [circular_spline_data["teeth"][0][1]]
     ax.plot(xc, yc, "r-", lw=0.8, label="Circular spline (fixed)")
 
-    xf = [p[0] for p in fs_def["teeth"]] + [fs_def["teeth"][0][0]]
-    yf = [p[1] for p in fs_def["teeth"]] + [fs_def["teeth"][0][1]]
+    xf = [p[0] for p in flexspline_deformed_data["teeth"]] + [flexspline_deformed_data["teeth"][0][0]]
+    yf = [p[1] for p in flexspline_deformed_data["teeth"]] + [flexspline_deformed_data["teeth"][0][1]]
     ax.plot(xf, yf, "g-", lw=0.8, label="Flexspline (deformed, meshing)")
 
-    xb = [p[0] for p in fs_def["bore"]] + [fs_def["bore"][0][0]]
-    yb = [p[1] for p in fs_def["bore"]] + [fs_def["bore"][0][1]]
+    xb = [p[0] for p in flexspline_deformed_data["bore"]] + [flexspline_deformed_data["bore"][0][0]]
+    yb = [p[1] for p in flexspline_deformed_data["bore"]] + [flexspline_deformed_data["bore"][0][1]]
     ax.plot(xb, yb, "g--", lw=0.8)
 
-    xw = [p[0] for p in wg["cam"]] + [wg["cam"][0][0]]
-    yw = [p[1] for p in wg["cam"]] + [wg["cam"][0][1]]
+    xw = [p[0] for p in wave_generator_data["cam"]] + [wave_generator_data["cam"][0][0]]
+    yw = [p[1] for p in wave_generator_data["cam"]] + [wave_generator_data["cam"][0][1]]
     ax.plot(xw, yw, "m-", lw=0.8, label="Wave generator cam")
 
-    wbore = circle_points(wg["bore_radius"])
+    wbore = circle_points(wave_generator_data["bore_radius"])
     wbx = [p[0] for p in wbore] + [wbore[0][0]]
     wby = [p[1] for p in wbore] + [wbore[0][1]]
     ax.plot(wbx, wby, "m--", lw=0.8)
@@ -262,5 +261,5 @@ def make_png_preview(fs, fs_def, cs, wg):
 
 
 if __name__ == "__main__":
-    fs, fs_def, cs, wg = export_all()
-    make_png_preview(fs, fs_def, cs, wg)
+    result_fs, result_fs_def, result_cs, result_wg = export_all()
+    make_png_preview(result_fs, result_fs_def, result_cs, result_wg)
