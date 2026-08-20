@@ -52,6 +52,15 @@ NUM_POINTS_PER_FLANK = 15        # точек на эвольвентном пр
 NUM_POINTS_TIP_ARC = 6           # точек на дуге вершины зуба
 NUM_POINTS_ROOT_ARC = 6          # точек на дуге впадины между зубьями
 
+# --- Радиусы скругления острых углов профиля, мм ---
+# (стык эвольвенты с окружностью вершин / окружностью впадин зубьев).
+# 0 - без скругления (острый угол, как раньше).
+FLEXSPLINE_TIP_FILLET_RADIUS = 0.05    # гибкое колесо: угол у вершины зуба
+FLEXSPLINE_ROOT_FILLET_RADIUS = 0.1    # гибкое колесо: угол у впадины зуба
+CIRCULAR_SPLINE_TIP_FILLET_RADIUS = 0.05    # жёсткое колесо: угол у вершины зуба
+CIRCULAR_SPLINE_ROOT_FILLET_RADIUS = 0.1    # жёсткое колесо: угол у впадины зуба
+NUM_POINTS_FILLET = 6            # точек на каждой дуге скругления
+
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
 
 # =====================================================================
@@ -66,6 +75,9 @@ def build_flexspline_cylindrical():
         internal=False,
         num_points=NUM_POINTS_PER_FLANK,
         root_arc_points=NUM_POINTS_ROOT_ARC, tip_arc_points=NUM_POINTS_TIP_ARC,
+        tip_fillet_radius=FLEXSPLINE_TIP_FILLET_RADIUS,
+        root_fillet_radius=FLEXSPLINE_ROOT_FILLET_RADIUS,
+        fillet_points=NUM_POINTS_FILLET,
     )
     inner_radius = rf - FLEXSPLINE_WALL_THICKNESS
     return {
@@ -99,6 +111,9 @@ def build_circular_spline():
         internal=True,
         num_points=NUM_POINTS_PER_FLANK,
         root_arc_points=NUM_POINTS_ROOT_ARC, tip_arc_points=NUM_POINTS_TIP_ARC,
+        tip_fillet_radius=CIRCULAR_SPLINE_TIP_FILLET_RADIUS,
+        root_fillet_radius=CIRCULAR_SPLINE_ROOT_FILLET_RADIUS,
+        fillet_points=NUM_POINTS_FILLET,
     )
     outer_radius = rf + CIRCULAR_SPLINE_RIM_THICKNESS
     return {
