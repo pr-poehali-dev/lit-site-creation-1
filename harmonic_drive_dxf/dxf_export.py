@@ -33,10 +33,16 @@ def add_polyline(msp, points, layer, closed=True):
 def add_spline(msp, points, layer, closed=True, degree=3):
     """Добавляет гладкую линию (B-сплайн NURBS) через заданные точки, вместо
     ломаной полилинии по отрезкам - контур выглядит плавным без изломов
-    на стыках сегментов эвольвенты/дуг."""
+    на стыках сегментов эвольвенты/дуг.
+
+    Замыкание делается явным дублированием первой точки в конце контура
+    (а не флагом closed у SPLINE), т.к. флаг не пересчитывает саму кривую
+    и оставляет микрозазор в месте стыка - из-за этого CAD-системы (КОМПАС
+    и др.) отказываются выдавливать 3D-модель с ошибкой "контур не замкнут"."""
     pts = [(float(x), float(y)) for x, y in points]
+    if closed and pts[0] != pts[-1]:
+        pts = pts + [pts[0]]
     spline = msp.add_spline(fit_points=pts, degree=degree, dxfattribs={"layer": layer})
-    spline.closed = closed
     return spline
 
 
