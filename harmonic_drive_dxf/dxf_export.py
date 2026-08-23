@@ -30,6 +30,16 @@ def add_polyline(msp, points, layer, closed=True):
     msp.add_lwpolyline(pts, close=closed, dxfattribs={"layer": layer})
 
 
+def add_spline(msp, points, layer, closed=True, degree=3):
+    """Добавляет гладкую линию (B-сплайн NURBS) через заданные точки, вместо
+    ломаной полилинии по отрезкам - контур выглядит плавным без изломов
+    на стыках сегментов эвольвенты/дуг."""
+    pts = [(float(x), float(y)) for x, y in points]
+    spline = msp.add_spline(fit_points=pts, degree=degree, dxfattribs={"layer": layer})
+    spline.closed = closed
+    return spline
+
+
 def add_circle(msp, radius, layer, center=(0.0, 0.0)):
     msp.add_circle(center=center, radius=float(radius), dxfattribs={"layer": layer})
 

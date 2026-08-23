@@ -25,7 +25,7 @@ import os
 
 from gear_geometry import full_gear_polygon, circle_points
 from deformation import wave_amplitude_from_teeth, deform_polygon, wave_generator_cam_profile
-from dxf_export import new_document, add_polyline, add_circle, add_label, save
+from dxf_export import new_document, add_polyline, add_spline, add_circle, add_label, save
 
 
 # =====================================================================
@@ -145,7 +145,7 @@ def export_all():
     # --- 1. Гибкое колесо, цилиндрическое ---
     doc = new_document()
     msp = doc.modelspace()
-    add_polyline(msp, fs["teeth"], "FLEXSPLINE_CYLINDRICAL")
+    add_spline(msp, fs["teeth"], "FLEXSPLINE_CYLINDRICAL")
     add_circle(msp, fs["inner_bore_radius"], "FLEXSPLINE_INNER_BORE")
     add_label(msp, f"Flexspline cylindrical  m={MODULE} z={Z_FLEXSPLINE}",
               (-fs["ra"], fs["ra"] + 5))
@@ -154,8 +154,8 @@ def export_all():
     # --- 2. Гибкое колесо, деформированное ---
     doc = new_document()
     msp = doc.modelspace()
-    add_polyline(msp, fs_def["teeth"], "FLEXSPLINE_DEFORMED")
-    add_polyline(msp, fs_def["bore"], "FLEXSPLINE_DEFORMED")
+    add_spline(msp, fs_def["teeth"], "FLEXSPLINE_DEFORMED")
+    add_spline(msp, fs_def["bore"], "FLEXSPLINE_DEFORMED")
     add_label(msp, f"Flexspline deformed (working)  w0={fs_def['w0']:.4f} mm",
               (-fs["ra"] - fs_def["w0"], fs["ra"] + fs_def["w0"] + 5))
     save(doc, os.path.join(OUTPUT_DIR, "flexspline_deformed.dxf"))
@@ -163,7 +163,7 @@ def export_all():
     # --- 3. Жёсткое колесо ---
     doc = new_document()
     msp = doc.modelspace()
-    add_polyline(msp, cs["teeth"], "CIRCULAR_SPLINE_TEETH")
+    add_spline(msp, cs["teeth"], "CIRCULAR_SPLINE_TEETH")
     add_circle(msp, cs["outer_radius"], "CIRCULAR_SPLINE_OUTER")
     add_label(msp, f"Circular spline (fixed)  m={MODULE} z={Z_CIRCULAR_SPLINE}",
               (-cs["outer_radius"], cs["outer_radius"] + 5))
@@ -172,7 +172,7 @@ def export_all():
     # --- 4. Генератор волн ---
     doc = new_document()
     msp = doc.modelspace()
-    add_polyline(msp, wg["cam"], "WAVE_GENERATOR_CAM")
+    add_spline(msp, wg["cam"], "WAVE_GENERATOR_CAM")
     add_circle(msp, wg["bore_radius"], "WAVE_GENERATOR_BORE")
     add_label(msp, "Wave generator cam", (-fs["ra"], fs["ra"] * 0.15 + 5))
     save(doc, os.path.join(OUTPUT_DIR, "wave_generator_cam.dxf"))
@@ -180,11 +180,11 @@ def export_all():
     # --- 5. Сборочный чертёж (все контуры вместе, для проверки зацепления) ---
     doc = new_document()
     msp = doc.modelspace()
-    add_polyline(msp, cs["teeth"], "CIRCULAR_SPLINE_TEETH")
+    add_spline(msp, cs["teeth"], "CIRCULAR_SPLINE_TEETH")
     add_circle(msp, cs["outer_radius"], "CIRCULAR_SPLINE_OUTER")
-    add_polyline(msp, fs_def["teeth"], "FLEXSPLINE_DEFORMED")
-    add_polyline(msp, fs_def["bore"], "FLEXSPLINE_DEFORMED")
-    add_polyline(msp, wg["cam"], "WAVE_GENERATOR_CAM")
+    add_spline(msp, fs_def["teeth"], "FLEXSPLINE_DEFORMED")
+    add_spline(msp, fs_def["bore"], "FLEXSPLINE_DEFORMED")
+    add_spline(msp, wg["cam"], "WAVE_GENERATOR_CAM")
     add_circle(msp, wg["bore_radius"], "WAVE_GENERATOR_BORE")
     add_label(msp, "Assembly preview (deformed working state)",
               (-cs["outer_radius"], cs["outer_radius"] + 8))
