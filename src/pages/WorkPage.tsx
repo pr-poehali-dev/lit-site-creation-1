@@ -47,7 +47,9 @@ export default function WorkPage() {
   const isAdmin = !!adminToken;
 
   useEffect(() => {
-    fetch(VISITS_URL, { method: 'POST' }).catch(() => {});
+    if (!isAdmin) {
+      fetch(VISITS_URL, { method: 'POST' }).catch(() => {});
+    }
     fetch(`${WORKS_URL}?id=${id}`)
       .then((r) => r.json())
       .then((data) => {
