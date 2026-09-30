@@ -4,6 +4,7 @@ import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { renderInline } from '@/utils/textFormat';
 
 const WORKS_URL = 'https://functions.poehali.dev/97e50fe2-d8c6-47a8-86fc-bbb58aeb0192';
 const VISITS_URL = WORKS_URL + '?action=visit';
@@ -366,11 +367,7 @@ export default function Index() {
               </div>
               <h3 className="font-serif text-xl sm:text-2xl mb-2 group-hover:text-accent transition-colors">{w.title}</h3>
               <p className="text-muted-foreground leading-relaxed text-sm">
-                {w.excerpt.split(/(\[color:[^\]]+\].*?\[\/color\])/g).map((part, j) => {
-                  const m = part.match(/^\[color:([^\]]+)\](.*)\[\/color\]$/s);
-                  if (m) return <span key={j} style={{ color: m[1] }}>{m[2]}</span>;
-                  return <span key={j}>{part}</span>;
-                })}
+                {renderInline(w.excerpt)}
               </p>
             </article>
           ))}
