@@ -310,6 +310,7 @@ export default function Index() {
           <div>
             <p className="text-accent uppercase tracking-[0.3em] text-xs mb-3">Архив</p>
             <h2 className="font-serif text-4xl sm:text-5xl">Произведения</h2>
+            <p className="font-serif italic text-xl sm:text-2xl text-accent mt-3">Кликни по одному из шести жанров (6 прямоугольников)</p>
           </div>
           <div className="relative w-full md:w-72">
             <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
