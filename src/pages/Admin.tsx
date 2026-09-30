@@ -99,19 +99,13 @@ export default function Admin() {
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
     const text = form.body;
-    const lineStart = text.lastIndexOf('\n', start - 1) + 1;
-    const lineEnd = text.indexOf('\n', end);
-    const fullEnd = lineEnd === -1 ? text.length : lineEnd;
-    const lines = text.slice(lineStart, fullEnd).split('\n');
-    const formatted = lines.map((line) => {
-      const stripped = line.replace(/^\*\*|\*\*$|^\*|\*$/g, '');
-      if (style === 'bold') return `**${stripped}**`;
-      if (style === 'italic') return `*${stripped}*`;
-      return stripped;
-    }).join('\n');
-    const newBody = text.slice(0, lineStart) + formatted + text.slice(fullEnd);
+    if (start === end) return;
+    const selected = text.slice(start, end);
+    const stripped = selected.replace(/^\*\*|\*\*$|^\*|\*$/g, '');
+    const formatted = style === 'bold' ? `**${stripped}**` : style === 'italic' ? `*${stripped}*` : stripped;
+    const newBody = text.slice(0, start) + formatted + text.slice(end);
     setForm({ ...form, body: newBody });
-    setTimeout(() => { ta.focus(); ta.setSelectionRange(lineStart, lineStart + formatted.length); }, 0);
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(start, start + formatted.length); }, 0);
   };
 
   const applyColor = (color: string, ref: React.RefObject<HTMLTextAreaElement>, field: 'body' | 'excerpt') => {

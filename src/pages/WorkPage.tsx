@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
+import { renderInline, renderFormattedBody } from '@/utils/textFormat';
 
 const WORKS_URL = 'https://functions.poehali.dev/97e50fe2-d8c6-47a8-86fc-bbb58aeb0192';
 const COMMENTS_URL = 'https://functions.poehali.dev/20b2c93c-b071-4d5c-854e-a1e7805084bf';
@@ -190,34 +191,12 @@ export default function WorkPage() {
 
         {work.excerpt && (
           <p className="text-muted-foreground italic text-lg leading-relaxed mb-10 border-l-2 border-accent pl-5">
-            {work.excerpt.split(/(\[color:[^\]]+\].*?\[\/color\])/g).map((part, j) => {
-              const m = part.match(/^\[color:([^\]]+)\](.*)\[\/color\]$/s);
-              if (m) return <span key={j} style={{ color: m[1] }}>{m[2]}</span>;
-              return <span key={j}>{part}</span>;
-            })}
+            {renderInline(work.excerpt)}
           </p>
         )}
 
         <div className="font-serif text-xl sm:text-2xl leading-[1.9] text-foreground">
-          {(() => {
-            const renderLines = (text: string, color?: string) =>
-              text.split('\n').map((line, i) => {
-                const style = color ? { color } : undefined;
-                if (line.startsWith('**') && line.endsWith('**'))
-                  return <p key={i} className="font-bold mb-0" style={style}>{line.slice(2, -2)}</p>;
-                if (line.startsWith('*') && line.endsWith('*') && line.length > 2)
-                  return <p key={i} className="italic mb-0" style={style}>{line.slice(1, -1)}</p>;
-                if (line === '') return <br key={i} />;
-                return <p key={i} className="font-medium mb-0" style={style}>{line}</p>;
-              });
-
-            const segments = work.body.split(/(\[color:[^\]]+\][\s\S]*?\[\/color\])/g);
-            return segments.map((seg, idx) => {
-              const m = seg.match(/^\[color:([^\]]+)\]([\s\S]*?)\[\/color\]$/);
-              if (m) return <span key={idx}>{renderLines(m[2], m[1])}</span>;
-              return <span key={idx}>{renderLines(seg)}</span>;
-            });
-          })()}
+          {renderFormattedBody(work.body)}
         </div>
 
         {work.audio_url && (
