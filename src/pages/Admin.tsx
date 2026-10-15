@@ -371,14 +371,23 @@ export default function Admin() {
     setSaving(true);
     const method = editId ? 'PUT' : 'POST';
     const url = editId ? `${WORKS_URL}?id=${editId}` : WORKS_URL;
-    await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
-      body: JSON.stringify(form),
-    });
-    setSaving(false);
-    setShowForm(false);
-    fetchWorks();
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'X-Auth-Token': token },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        alert('Не удалось сохранить. Попробуйте ещё раз через несколько секунд.');
+        return;
+      }
+      setShowForm(false);
+      fetchWorks();
+    } catch {
+      alert('Нет связи с сервером. Попробуйте ещё раз.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const confirmDelete = async () => {

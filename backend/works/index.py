@@ -38,8 +38,20 @@ _conn = None
 
 def get_conn():
     global _conn
-    if _conn is None or _conn.closed:
-        _conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    if _conn is not None and not _conn.closed:
+        try:
+            _conn.rollback()
+            c = _conn.cursor()
+            c.execute('SELECT 1')
+            c.close()
+            _conn.rollback()
+            return _conn
+        except Exception:
+            try:
+                _conn.close()
+            except Exception:
+                pass
+    _conn = psycopg2.connect(os.environ['DATABASE_URL'])
     return _conn
 
 def cors_headers():
